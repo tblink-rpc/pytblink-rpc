@@ -1,1 +1,0 @@
-FAIL: exit status 2
