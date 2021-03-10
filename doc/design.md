@@ -10,6 +10,27 @@ A testbench environment could be any of the following:
 - A VHDL testbench (?)
 - Embedded software (?)
 
+- tblink front-end library is pure python
+  - Uses 'backend' abstraction to
+    - Get simulation time and timescale information
+    - Register timed callbacks
+    - Discover and call methods
+    
+- Most Python-side scheduling is handled by asyncio, which 
+  is not available at the C level.
+- tblink exposes APIs to interact with Python interpreter
+  - SV abstraction for packing arguments and calling methods
+    - Refcounts must be managed by the user
+  - C/C++ abstraction for calling methods
+- tblink provides an implementation of an hvl-rpc endpoint,
+  with bindings on the HVL side (?)
+  
+  
+- Priorities
+  - Python launcher
+  - Event-loop basics -- do we need anything more involved than asyncio?
+  - 
+
 # Requirements
 - Interaction should be bi-directional
   - TB creating and calling classes on the Python side
@@ -23,7 +44,21 @@ A testbench environment could be any of the following:
 - Support building libraries -- ie don't require
   source generation that is testbench-specific 
   in all cases.
+  
+- Note: tasks are a bit tricky. 
+  - Need to invoke from different thread, provided by env
+  - Need to pack arguments -- ideally without directly using libffi
+  - 
+  
+- Invoking 'task' from env
+  - Create task in which to call function
+  - Need to have event on 'env' side for synchronization
+  - 
 
+# Interface
+- Launcher library/libraries
+  - May be simulator-specific
+  - 
 # Packaging
 - Data types
 - 

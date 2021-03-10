@@ -10,21 +10,40 @@
  * TODO: Add package documentation
  */
 package tblink_pkg;
-
+	
 	/****************************************************************
 	 * Initialization code
 	 ****************************************************************/
 	import "DPI-C" context function int _tblink_dpi_init(
 			int have_blocking_tasks
 		);
-	int _init = _tblink_dpi_init(
+
+	import "DPI-C" function chandle _tblink_pylist_new(int unsigned sz);
+	
+	function int _init_tblink();
+		int ret;
+		chandle l;
+		
+		ret = _tblink_dpi_init(
 `ifdef VERILATOR
 			0 // Does not support blocking task calls
 `else
 			1 // Other simulators do
 `endif
 			);
-	
+		
+		l = _tblink_pylist_new(10);
+		$display("l=%p", l);
+		
+		if (ret != 1) begin
+			$display("Error: Failed to initialize PyTblink backend");
+			$finish();
+		end
+		
+		return ret;
+	endfunction
+		
+	int _init = _init_tblink();
 
 `ifndef VERILATOR
 	/****************************************************************
@@ -34,7 +53,7 @@ package tblink_pkg;
 	class timed_cb;
 		int unsigned				m_id;
 		longint unsigned			m_delta;
-		bit							m_valid = 1;
+		bit					m_valid = 1;
 		
 		function new(
 			int unsigned		id,
@@ -53,7 +72,7 @@ package tblink_pkg;
 	endclass
 	
 	int unsigned					prv_cb_id;
-	timed_cb						prb_active_cb;
+	timed_cb					prb_active_cb;
 	
 	/****************************************************************
 	 * _tblink_register_timed_callback()

@@ -143,12 +143,20 @@ setup(
   ],
   cmdclass={'build_ext': build_ext},
   ext_modules=[
-        Extension("libtblink",
+        Extension("libtblink-launcher",
             include_dirs=[
-                os.path.join(pybfms_root, 'ext/core'), 
+                os.path.join(pybfms_root, 'ext/launcher'), 
                 ],
             sources=find_source([
-                os.path.join(pybfms_root, 'ext/core')
+                os.path.join(pybfms_root, 'ext/launcher')
+            ])
+        ),
+        Extension("tblink.core",
+            include_dirs=[
+                os.path.join(pybfms_root, 'ext/launcher'),
+                ],
+            sources=find_source([
+                os.path.join(pybfms_root, 'ext')
             ])
         )
     ]
