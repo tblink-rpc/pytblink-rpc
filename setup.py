@@ -1,11 +1,14 @@
 
 import os
 from setuptools import setup
+from Cython.Build import cythonize
 from distutils.extension import Extension
+from Cython.Distutils import build_ext
 from distutils.command.build_clib import build_clib
 from distutils.ccompiler import new_compiler
 from distutils.spawn import find_executable
-from setuptools.command.build_ext import build_ext as _build_ext
+#from setuptools.command.build_ext import build_ext as _build_ext
+from Cython.Distutils import build_ext as _build_ext
 from distutils.file_util import copy_file
 
 def find_source(bases):
@@ -51,6 +54,8 @@ class build_ext(_build_ext):
          - replaces ``.pyd`` with ``.dll`` on windows.
         """
 
+        print("ext_name: " + str(ext_name))
+
         filename = _build_ext.get_ext_filename(self, ext_name)
 
         # for the simulator python extension library, leaving suffix in place
@@ -73,13 +78,7 @@ class build_ext(_build_ext):
 
     def finalize_options(self):
         """ Like the base class method,but add extra library_dirs path. """
-
         super().finalize_options()
-
-        for ext in self.extensions:
-            ext.library_dirs.append(
-                os.path.join(self.build_lib, os.path.dirname(ext._full_name))
-            )
 
     def copy_extensions_to_source(self):
         """ Like the base class method, but copy libs into proper directory in develop. """
@@ -151,14 +150,10 @@ setup(
                 os.path.join(pybfms_root, 'ext/launcher')
             ])
         ),
-        Extension("tblink.core",
-            include_dirs=[
-                os.path.join(pybfms_root, 'ext/launcher'),
-                ],
-            sources=find_source([
-                os.path.join(pybfms_root, 'ext')
-            ])
-        )
+        Extension('tblink_core', 
+            sources=['ext/tblink_core.pyx'],
+            include_dirs=['ext/launcher'],
+            language="c++")
     ]
 )
 

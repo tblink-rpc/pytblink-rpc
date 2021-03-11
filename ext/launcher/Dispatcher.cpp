@@ -5,7 +5,7 @@
  *      Author: ballance
  */
 
-#include "Dispatcher.h"
+#include "../launcher/Dispatcher.h"
 
 namespace tblink {
 

@@ -3,12 +3,21 @@ Created on Mar 7, 2021
 
 @author: mballance
 '''
+from typing import List
 
 class Backend(object):
     """Defines backend API required to interact with simulation"""
     
+    # Capabilities
+    # - Supports Py->Env calls (DPI, not VPI)
+    # - Supports Py->Env time-consuming calls (DPI, not Verilator)
+    
     def __init__(self):
         pass
+    
+    def args(self) -> List[str]:
+        """Returns the list of command-line arguments"""
+        raise NotImplementedError("args not implemented")
     
     def simtime(self) -> int:
         """Returns simtime with default units and precision"""

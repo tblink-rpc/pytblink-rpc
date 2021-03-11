@@ -8,6 +8,8 @@ from tblink.tblink import TbLink
 import importlib
 import asyncio
 from asyncio import Task
+import sys
+import os
 
 def init(
         backend : Backend,
@@ -22,6 +24,11 @@ def init(
         except Exception as e:
             print("Failed to load module \"" + module + "\": " + str(e))
             raise e
+    else:
+        if "MODULE" in os.environ.keys():
+            importlib.import_module(os.environ["MODULE"])
+        else:
+            raise Exception("No module specified for loading")
     
     pass
 
@@ -37,6 +44,10 @@ def start(entry_f = None):
             raise Exception("No tests registered")
         else:
             TbLink.inst().start(TestRgy.inst().tests[0])
+            
+    # Run a reschedue operation to ensure that the
+    # entrypoint executes
+    TbLink.inst().reschedule()
             
 def event():
     return asyncio.Event()

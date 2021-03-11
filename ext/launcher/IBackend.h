@@ -1,18 +1,29 @@
 
 #pragma once
 #include <stdint.h>
+#include <string>
+#include <vector>
+
+namespace tblink {
 
 class IBackend {
 public:
 
 	virtual ~IBackend() { }
 
+	virtual const std::vector<std::string> &args() const = 0;
+
 	virtual uint64_t simtime() = 0;
 
-	virtual void add_simtime_cb(
+	virtual intptr_t add_simtime_cb(
 			uint64_t		delta,
 			void 			(*cb_f)(void *),
-			void 			*ud
-			) = 0;
+			void 			*ud) = 0;
+
+	virtual void remove_simtime_cb(
+			intptr_t		id) = 0;
 
 };
+
+}
+
