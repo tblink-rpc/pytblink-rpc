@@ -15,3 +15,8 @@ async def entry(dut):
         print("Simtime: " + str(tblink.simtime()))
     except Exception as e:
         print("Exception: " + str(e))
+
+    for i in range(10):
+        print("--> Sleep " + str(tblink.simtime()))
+        await tblink.sleep(10)
+        print("<-- Sleep " + str(tblink.simtime()))

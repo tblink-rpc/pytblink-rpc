@@ -21,6 +21,12 @@ MKDV_VL_SRCS += $(shell $(ENV) python3 -m tblink files)
 DPI_LIBS += $(shell $(ENV) python3 -m tblink lib)
 endif
 
+ifeq (questa,$(MKDV_TOOL))
+MKDV_VL_SRCS += $(shell $(ENV) python3 -m tblink files)
+DPI_LIBS += $(shell $(ENV) python3 -m tblink lib)
+MKDV_VL_TOP_MODULES += tblink
+endif
+
 include $(DV_MK)
 else # Rules
 

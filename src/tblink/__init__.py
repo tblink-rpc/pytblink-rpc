@@ -48,7 +48,7 @@ def start(entry_f = None):
     # Run a reschedue operation to ensure that the
     # entrypoint executes
     TbLink.inst().reschedule()
-            
+    
 def event():
     return asyncio.Event()
 

@@ -12,7 +12,7 @@ hvl_dir = os.path.join(tblink_dir, "hvl")
 
 def files(args):
     sv_dpi_files = [
-        os.path.join(hvl_dir, "tblink_pkg.sv")
+        os.path.join(hvl_dir, "tblink.sv")
         ]
 
     files = None    

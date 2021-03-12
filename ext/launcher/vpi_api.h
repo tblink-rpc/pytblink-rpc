@@ -10,6 +10,7 @@
 
 typedef struct vpi_api_s {
 	void (*vpi_get_value)(vpiHandle, p_vpi_value);
+	PLI_INT32 (*vpi_control)(PLI_INT32, ...);
 	vpiHandle (*vpi_put_value)(vpiHandle, p_vpi_value, p_vpi_time, PLI_INT32);
 	vpiHandle (*vpi_handle)(PLI_INT32, vpiHandle);
 	vpiHandle (*vpi_iterate)(PLI_INT32, vpiHandle);

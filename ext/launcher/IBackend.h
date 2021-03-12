@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "IReschedule.h"
 
 namespace tblink {
 
@@ -10,6 +11,8 @@ class IBackend {
 public:
 
 	virtual ~IBackend() { }
+
+	virtual void init(bool (*reschedule)()) = 0;
 
 	virtual const std::vector<std::string> &args() const = 0;
 

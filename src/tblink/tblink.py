@@ -61,9 +61,13 @@ class TbLink(object):
             
         unscaled = time
 
-        self.backend.add_simtime_cb(_notify, unscaled)
+        print("--> add_simtime_cb")
+        self.backend.add_simtime_cb(unscaled, _notify)
+        print("<-- add_simtime_cb")
        
+        print("--> wait")
         await e.wait()
+        print("<-- wait")
     
     def simtime(self, units=None) -> int:
         unscaled = self.backend.simtime()

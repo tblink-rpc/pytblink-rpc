@@ -1,8 +1,27 @@
 /*
  * vpi_api.cpp
  *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  *  Created on: Mar 10, 2021
  *      Author: mballance
+ *
+ *  Provides a dynamic loader for the VPI API
  */
 
 #include "vpi_api.h"
@@ -34,6 +53,7 @@ static void *find_vpi_lib() {
 
 
 static vpi_api_func_s api_tab[] = {
+		{"vpi_control", (void **)&prv_vpi_api.vpi_control},
 		{"vpi_get_value", (void **)&prv_vpi_api.vpi_get_value},
 		{"vpi_put_value", (void **)&prv_vpi_api.vpi_put_value},
 		{"vpi_handle", (void **)&prv_vpi_api.vpi_handle},

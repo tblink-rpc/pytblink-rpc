@@ -61,4 +61,14 @@ A testbench environment could be any of the following:
   - 
 # Packaging
 - Data types
+
+
+# Simulator differences
+- Commercial simulators require time-management to be in SV
+  - Require an extra top-level module to host initial block
+  - Package only used for SV->Py API
+  - Initialization code is in the module
+- Verilator doesn't support SV-based time management
+  - Only supports a single top-level module
+  - Package used for both SV->Py API and initialization code
 - 
