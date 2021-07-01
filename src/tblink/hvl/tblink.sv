@@ -9,6 +9,7 @@
  * Package: tblink
  * 
  * Implements TbLink integration for SV-DPI simulators
+ * without support for time-consuming tasks
  */
 package tblink;
 	
@@ -75,7 +76,12 @@ package tblink;
 endpackage
 
 `else /* !VERILATOR */
-	
+
+/**
+ * Module: tblink
+ * 
+ * Hosts thread-creation site for tblink
+ */
 module tblink();
 	// Requests for new threads are queued here
 	typedef class timed_cb;
@@ -97,8 +103,6 @@ module tblink();
 	endfunction
 	
 	int _init = _init_tblink();
-//	int init_tblink_m = register_scope("tblink_m");
-
 	
 	/****************************************************************
 	 * timed_cb
@@ -144,16 +148,12 @@ module tblink();
 		endfunction
 		
 		task run();
-			$display("%0t --> run delta=%0d", $time, m_delta);
 			#(m_delta*1ns);
-			$display("%0t -- post-delay", $time);
 			if (m_valid) begin
-				$display("-- tblink_timed_callback");
 				_tblink_timed_callback(m_id);
 			end
 			// Remove ourselves from the active callback list
 			m_active_cb[m_id] = null;
-			$display("<-- run");
 		endtask
 	endclass
 	
@@ -177,8 +177,6 @@ module tblink();
 		automatic int unsigned id = timed_cb::alloc_id();
 		automatic timed_cb cb = new(id, delta);
 		
-		$display("_tblink_register_timed_callback");
-		
 		void'(cb_q.try_put(cb));
 		
 		return id;
@@ -200,7 +198,6 @@ module tblink();
 			join_none
 		end
 	end
-	
 endmodule
 `endif /* !VERILATOR */
 

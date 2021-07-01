@@ -23,7 +23,7 @@ public:
 
 	virtual ~BackendDpi();
 
-	virtual void init(bool (*reschedule)()) override;
+	virtual void init(const std::function<bool ()> &reschedule) override;
 
 	virtual const std::vector<std::string> &args() const override;
 
@@ -37,6 +37,10 @@ public:
 	virtual void remove_simtime_cb(
 			intptr_t		id) override;
 
+	virtual int32_t get_timeunit() override;
+
+	virtual int32_t get_timeprecision() override;
+
 	void timed_callback(intptr_t id);
 
 	void register_scope(const std::string &key, void *s);
@@ -49,7 +53,8 @@ private:
 			void (*)(void *),
 			void *,
 			intptr_t> cb_t;
-	bool 						(*m_reschedule)();
+
+	std::function<bool ()>		m_reschedule;
 	void						*m_scope;
 	struct vpi_api_s			*m_vpi_api;
 	std::vector<std::string>	m_args;

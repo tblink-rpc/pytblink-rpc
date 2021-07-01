@@ -22,9 +22,24 @@
 
 // Externs for DPI-Exported methods
 extern "C" {
-void *svGetScope();
-void *svSetScope(void *);
+void *svGetScope() __attribute__((weak));
+void *svSetScope(void *) __attribute__((weak));
+int _tblink_register_timed_callback(uint64_t delta) __attribute__((weak));
+
+void *svGetScope() {
+	return 0;
 }
+
+void *svSetScope(void *) {
+	return 0;
+}
+
+int _tblink_register_timed_callback(uint64_t delta) {
+	return -1;
+}
+
+}
+
 
 using namespace tblink;
 

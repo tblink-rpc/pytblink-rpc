@@ -15,6 +15,7 @@ from tblink.tblink import TbLink
 
 ctypedef unsigned long long   uint64_t
 ctypedef long long            int64_t
+ctypedef int                  int32_t
 ctypedef unsigned int         uint32_t
 
 cdef extern from "IBackend.h" namespace "tblink":
@@ -35,6 +36,10 @@ cdef extern from "IBackend.h" namespace "tblink":
         
         void remove_simtime_cb(
             uint64_t        id)
+        
+        int32_t get_timeunit()
+        
+        int32_t get_timeprecision()
        
 
 cdef void _cb_closure(void *ud):
@@ -65,6 +70,12 @@ cdef class BackendNative(object):
         
     def remove_simtime_cb(self, id):
         self.backend.remove_simtime_cb(id)
+        
+    def get_timeunit(self) -> int:
+        return self.backend.get_timeunit()
+    
+    def get_timeprecision(self) -> int:
+        return self.backend.get_timeprecision()
         
 
 # Need to know about IBackend 

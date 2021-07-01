@@ -1,0 +1,61 @@
+
+classes:
+
+    # Initialization Request
+    - InitializeReq:
+    
+    # Initialization Response
+    - InitializeRsp:
+        - data:
+            # Specifies the APIs supported by this endpoint server
+            - apis       : list<ApiDef>
+            
+            # Specifies the API bundles supported by this endpoint server
+            - bundles    : list<BundleDef>
+            
+    - RunStart:
+        - data:
+            - module     : string
+            - entry      : string
+    
+    - RunComplete:
+        - data:
+            - status     : string
+            
+    - InvokeMethodReq:
+        - data:
+            - simtime    : int
+            - bundle     : int
+            - api        : int
+            - method     : int
+            - params     : list<ParamVal>
+            
+    - InvokeMethodRsp:
+        - data:
+            - simtime    : int
+            - retval     : ParamVal
+            
+    - ApiDef:
+        - data:
+            - name       : string
+            - is_export  : bool
+            - methods    : list<MethodDef>
+            
+    - MethodDef:
+        - data:
+            - name       : string
+            - rtype      : string
+            - is_task    : bool
+            - parameters : list<ParamDef>
+            
+    - ParamDef:
+        - data:
+            - name  : string
+            - ptype : string
+            
+    - BundleDef:
+        - data:
+            - name : string
+            - apis : list<ApiDef>
+            
+            

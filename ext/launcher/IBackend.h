@@ -1,5 +1,6 @@
 
 #pragma once
+#include <functional>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -12,7 +13,7 @@ public:
 
 	virtual ~IBackend() { }
 
-	virtual void init(bool (*reschedule)()) = 0;
+	virtual void init(const std::function<bool ()> &reschedule) = 0;
 
 	virtual const std::vector<std::string> &args() const = 0;
 
@@ -25,6 +26,10 @@ public:
 
 	virtual void remove_simtime_cb(
 			intptr_t		id) = 0;
+
+	virtual int32_t get_timeunit() = 0;
+
+	virtual int32_t get_timeprecision() = 0;
 
 };
 

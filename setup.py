@@ -21,7 +21,9 @@ def find_source(bases):
     print("find_source: " + str(ret))
     return ret
 
-pybfms_root = os.path.dirname(os.path.abspath(__file__))
+pybfms_root  = os.path.dirname(os.path.abspath(__file__))
+tblink_dir   = os.path.dirname(os.path.abspath(__file__))
+packages_dir = os.path.join(tblink_dir, "packages")
 
 def _get_lib_ext_name():
     """ Get name of default library file extension on given OS. """
@@ -135,16 +137,19 @@ setup(
   entry_points={
     'console_scripts': [
       'tblink = tblink.__main__:main'
-    ]
+    ],
+    'hvlrpc.generators' : 'sv=tblink.generators.systemverilog'
   },
   setup_requires=[
-    'setuptools_scm',
+    'setuptools_scm'
   ],
   cmdclass={'build_ext': build_ext},
   ext_modules=[
         Extension("libtblink-launcher",
             include_dirs=[
                 os.path.join(pybfms_root, 'ext/launcher'), 
+                os.path.join(pybfms_root, 'src/tblink/share/include'), 
+                os.path.join(packages_dir, "json", "include")
                 ],
             sources=find_source([
                 os.path.join(pybfms_root, 'ext/launcher')
@@ -152,7 +157,10 @@ setup(
         ),
         Extension('tblink_core', 
             sources=['ext/tblink_core.pyx'],
-            include_dirs=['ext/launcher'],
+            include_dirs=[
+                'ext/launcher',
+                os.path.join(packages_dir, "json", "include")
+                ],
             language="c++")
     ]
 )

@@ -55,6 +55,14 @@ def getparser():
         help="Get library path")
     lib_cmd.set_defaults(func=lib)
     
+    run_cmd = subparser.add_parser("run",
+        help="Launch tblink session -- primarily ued internally")
+    run_cmd.add_argument("-host",
+                        help="Host to connect to")
+    run_cmd.add_argument("-port",
+                        help="Port to connect to")
+#    run_cmd.set_defaults(func=)
+    
     return parser
     
 

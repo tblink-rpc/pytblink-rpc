@@ -1,5 +1,5 @@
 
-
+cython
 -e git+ssh://git@github.com/fvutils/vlsim.git#egg=vlsim
 -e git+ssh://git@github.com/fvutils/mkdv.git#egg=mkdv
 -e git+ssh://git@github.com/fvutils/pyhvl-rpc.git#egg=pyhvl-rpc

@@ -10,7 +10,9 @@ import typing
 
 from .impl.test_rgy import TestRgy
 
-
+# tblink uses a class as the entry point for a test
+# - Provides us with phasing
+# - Encourages user to break up test
 def test(*args, **kwargs):
     class test_w(object):
         def __init__(self, *args, **kwargs):
@@ -28,7 +30,7 @@ def test(*args, **kwargs):
     else:
         # Called as @test(...)
         return test_w(args, kwargs)
-        
+    
     
 
 # def if_class(T):

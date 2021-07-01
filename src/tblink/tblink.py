@@ -20,7 +20,9 @@ class TbLink(object):
         self.entry_f = None
         self.entry_t = None
         TbLink._tblink = self
-        pass
+        
+        self.units = backend.get_timeunit()
+        self.precision = backend.get_timeprecision()
     
     @classmethod
     def inst(cls):
@@ -59,18 +61,33 @@ class TbLink(object):
             nonlocal e
             e.set()
             
-        unscaled = time
+        if units is None:
+            units = self.units
 
-        print("--> add_simtime_cb")
+        unscaled = time
+        if units > self.units:
+            # Desired units are coarser than default
+            unscaled *= (10 ** (units-self.units))
+        elif units < self.units:
+            # Desired units are finer than default
+            unscaled /= (10 ** (units-self.units))
+            
         self.backend.add_simtime_cb(unscaled, _notify)
-        print("<-- add_simtime_cb")
-       
-        print("--> wait")
         await e.wait()
-        print("<-- wait")
     
     def simtime(self, units=None) -> int:
+        if units is None:
+            units = self.units
+            
         unscaled = self.backend.simtime()
+
+        if units > self.units:
+            # Desired units are coarser than default
+            unscaled /= (10 ** (units-self.units))
+        elif units < self.units:
+            # Desired units are finer than default
+            unscaled *= (10 ** (units-self.units))
+        
         return unscaled
         
     

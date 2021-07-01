@@ -42,7 +42,7 @@ BackendDpi::~BackendDpi() {
 	// TODO Auto-generated destructor stub
 }
 
-void BackendDpi::init(bool (*reschedule)()) {
+void BackendDpi::init(const std::function<bool ()> &reschedule) {
 	m_reschedule = reschedule;
 }
 
@@ -83,7 +83,7 @@ intptr_t BackendDpi::add_simtime_cb(
 
 		t.type = vpiSimTime;
 		t.low = delta;
-		t.high = (delta >> 64);
+		t.high = (delta >> 32);
 
 		memset(&cbd, 0, sizeof(s_cb_data));
 		cbd.cb_rtn = &BackendDpi::vpi_cb;
@@ -109,6 +109,14 @@ void BackendDpi::remove_simtime_cb(intptr_t	id) {
 		// Cancel the callback via DPI
 
 	}
+}
+
+int32_t BackendDpi::get_timeunit() {
+	return m_vpi_api->vpi_get(vpiTimeUnit, 0);
+}
+
+int32_t BackendDpi::get_timeprecision() {
+	return m_vpi_api->vpi_get(vpiTimePrecision, 0);
 }
 
 void BackendDpi::register_scope(const std::string &key, void *s) {

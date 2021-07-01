@@ -132,4 +132,7 @@ packages/
 
 # This file is left behind after Cythonizing things
 ext/tblink_core.cpp
+rundir/
+cache/
+work/
 
