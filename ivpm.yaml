@@ -1,0 +1,7 @@
+package:
+    name: pytblink-rpc
+    version: None
+    deps:
+        - name: tblink-rpc-core
+          url: https://github.com/tblink-rpc/tblink-rpc-core.git
+    dev-deps:
