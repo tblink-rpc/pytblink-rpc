@@ -9,6 +9,7 @@ from typing import Generic, TypeVar, List
 import typing
 
 from .impl.test_rgy import TestRgy
+from attr.validators import is_callable
 
 # tblink uses a class as the entry point for a test
 # - Provides us with phasing
@@ -30,8 +31,47 @@ def test(*args, **kwargs):
     else:
         # Called as @test(...)
         return test_w(args, kwargs)
+
+class _iftype():
     
+    def __init__(self, kwargs):
+        pass
     
+    def __call__(self, T):
+        return T
+    
+    pass
+
+
+def iftype(*args, **kwargs):
+    """Marks an interface type"""
+    if len(args) == 1 and len(kwargs) == 0 and is_callable(args[0]):
+        # No-argument form
+        return _iftype({})(args[0])
+    else:
+        return _iftype(kwargs)
+
+class _impfunc(object):
+    
+    def __init__(self, kwargs):
+        pass
+    
+    def __call__(self, T):
+        return T
+    
+def impfunc(*args, **kwargs):
+    pass
+
+class _expfunc(object):
+    
+    def __init__(self, kwargs):
+        pass
+    
+    def __call__(self, T):
+        return T
+    
+def expfunc(*args, **kwargs):
+    pass
 
 # def if_class(T):
 #     """Defines a class as an interface class"""
