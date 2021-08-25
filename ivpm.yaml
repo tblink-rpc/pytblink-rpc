@@ -5,3 +5,5 @@ package:
         - name: tblink-rpc-core
           url: https://github.com/tblink-rpc/tblink-rpc-core.git
     dev-deps:
+        - name: tblink-rpc-core
+          url: https://github.com/tblink-rpc/tblink-rpc-core.git

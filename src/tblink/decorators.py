@@ -9,7 +9,7 @@ from typing import Generic, TypeVar, List
 import typing
 
 from .impl.test_rgy import TestRgy
-from attr.validators import is_callable
+from tblink.impl.ctor import Ctor
 
 # tblink uses a class as the entry point for a test
 # - Provides us with phasing
@@ -35,9 +35,22 @@ def test(*args, **kwargs):
 class _iftype():
     
     def __init__(self, kwargs):
+        self.name = None
+        
+        for key in kwargs.keys():
+            if key == "name":
+                self.name = kwargs[key]
+            else:
+                raise Exception("Unsupport iftype kwarg %s" % key)
         pass
     
     def __call__(self, T):
+        if self.name is None:
+            self.name = T.__name__
+            
+        Ctor.inst().add_iftype(
+            T,
+            self.name)
         return T
     
     pass
@@ -45,22 +58,30 @@ class _iftype():
 
 def iftype(*args, **kwargs):
     """Marks an interface type"""
-    if len(args) == 1 and len(kwargs) == 0 and is_callable(args[0]):
+    if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
         # No-argument form
         return _iftype({})(args[0])
     else:
         return _iftype(kwargs)
-
+    
 class _impfunc(object):
     
     def __init__(self, kwargs):
         pass
     
     def __call__(self, T):
-        return T
+        def _impfunc_impl(self, *args, **kwargs):
+            pass
+        Ctor.inst().add_method(T, False, True)
+        return _impfunc_impl
     
 def impfunc(*args, **kwargs):
-    pass
+    """Marks an imported task"""
+    if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+        # No-argument form
+        return _impfunc({})(args[0])
+    else:
+        return _impfunc(kwargs)
 
 class _expfunc(object):
     
@@ -72,6 +93,22 @@ class _expfunc(object):
     
 def expfunc(*args, **kwargs):
     pass
+
+class _imptask(object):
+    
+    def __init__(self, kwargs):
+        pass
+    
+    def __call__(self, T):
+        return T
+    
+def imptask(*args, **kwargs):
+    """Marks an imported task"""
+    if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+        # No-argument form
+        return _imptask({})(args[0])
+    else:
+        return _imptask(kwargs)
 
 # def if_class(T):
 #     """Defines a class as an interface class"""

@@ -97,5 +97,6 @@ def test_init():
     
     TbLink.test_init()
     TestRgy.test_init()
+    Ctor.reset()
     
     # TODO: clear out test registry
