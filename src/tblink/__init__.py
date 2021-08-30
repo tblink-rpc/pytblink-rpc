@@ -90,7 +90,12 @@ async def sleep(time, units=None):
             
 def fork(coro) -> Task:
     return TbLink.inst().fork(coro)
-    
+
+#def mkInst(T, ep, inst_name, *args, **kwargs):
+#    pass
+
+#def mkMirrorInst(T, ep, inst_name, *args, **kwargs):
+#    pass
 
 def test_init():
     """Called by unit tests to clear state of the package"""

@@ -138,6 +138,7 @@ class Ctor(object):
         print("add_iftype: %s" % name)
         iftype = InterfaceType(
             name,
+            T,
             self.methods.copy())
         self.methods.clear()
         self.method_m.clear()

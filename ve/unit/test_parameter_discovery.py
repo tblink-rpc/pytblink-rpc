@@ -48,5 +48,6 @@ class TestParameterDiscovery(TestCase):
         self.assertEqual(imp_m.params[3].ptype.base_t, TypeDeclE.vec)
         self.assertEqual(imp_m.params[3].ptype.elem_t.base_t, TypeDeclE.u32)
         
-#        i = T()
-#        i.imp(1, 2)
+        i = T()
+        i.imp(1, 2)
+
