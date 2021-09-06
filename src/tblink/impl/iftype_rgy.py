@@ -5,6 +5,8 @@ Created on Aug 22, 2021
 '''
 from tblink_rpc_core.endpoint_mgr import EndpointMgr
 from tblink_rpc_core.endpoint_mgr_listener import EndpointMgrListener
+from tblink.impl.iftype_decl import IftypeDecl
+from tblink.impl.param_type_builder import ParamTypeBuilder
 
 class IftypeRgy(EndpointMgrListener):
     
@@ -28,6 +30,7 @@ class IftypeRgy(EndpointMgrListener):
         return cls._inst
     
     def endpoint_added(self, ep):
+        print("endpoint_added")
         for iftype in self.iftypes:
             self._define_iftype(ep, iftype)
             
@@ -55,10 +58,26 @@ class IftypeRgy(EndpointMgrListener):
         else:
             return None
         
-    def _define_iftype(self, ep, iftype):
+    def _define_iftype(self, ep, iftype : IftypeDecl):
         iftype_b = ep.newInterfaceTypeBuilder(iftype.name)
+        ptb = ParamTypeBuilder(iftype_b)
         
-        # TODO: define methods
+        for i,m in enumerate(iftype.methods):
+            print("Method: %s" % m.name)
+            mtb = iftype_b.newMethodTypeBuilder(
+                m.name,
+                i,
+                ptb.build(m.rtype),
+                m.is_export,
+                m.is_task)
+            
+            for name,ptype in m.params:
+                mtb.add_param(
+                    name,
+                    ptb.build(ptype))
+                
+            mt = iftype_b.add_method(mtb)
+            m.method_t_ep_m[ep] = mt
         
         ep.defineInterfaceType(iftype_b)
         

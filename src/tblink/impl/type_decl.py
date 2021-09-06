@@ -6,6 +6,7 @@ Created on Aug 24, 2021
 from enum import Enum, auto
 
 class TypeDeclE(Enum):
+    bool = auto()
     i8  = auto()
     i16 = auto()
     i32 = auto()
@@ -19,6 +20,7 @@ class TypeDeclE(Enum):
     map = auto()
 
 class TypeDecl(object):
+    """Type specification used by the user-facade layer"""
     
     def __init__(self, 
                  base_t : TypeDeclE,

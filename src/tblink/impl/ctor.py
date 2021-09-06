@@ -3,14 +3,13 @@ Created on Jan 31, 2021
 
 @author: mballance
 '''
-from tblink.model.param_decl import ParamDecl
-from tblink.model.type_decl import TypeDecl, TypeDeclE
-from tblink.model.method_type import MethodType
 import ctypes
 from typing import Dict, List
 import typing
-from tblink.model.interface_type import InterfaceType
 from tblink.impl.iftype_rgy import IftypeRgy
+from tblink.impl.methodtype_decl import MethodTypeDecl
+from tblink.impl.type_decl import TypeDecl, TypeDeclE
+from tblink.impl.iftype_decl import IftypeDecl
 
 class Ctor(object):
 
@@ -65,7 +64,9 @@ class Ctor(object):
                         # TODO: validate type
                         ptype_o = self._build_tdecl(ptype)
                         
-                        pdecl = ParamDecl(ptype_o, pname)
+                        pdecl = (pname, ptype_o)
+                        
+                        # TODO: need to get default value?
                         
                         params.append(pdecl)
                     else:
@@ -78,7 +79,7 @@ class Ctor(object):
         if T.__name__ in self.method_m.keys():
             raise Exception("Error: duplicate method name %s", T.__name__)
             
-        m = MethodType(
+        m = MethodTypeDecl(
             T.__name__,
             len(self.methods),
             rtype_o,
@@ -87,7 +88,7 @@ class Ctor(object):
             is_import)
         self.methods.append(m)
         self.method_m[T.__name__] = m
-        pass
+        return m
     
     def _build_tdecl(self, ptype):
         ret = None
@@ -136,7 +137,7 @@ class Ctor(object):
     
     def add_iftype(self, T, name):
         print("add_iftype: %s" % name)
-        iftype = InterfaceType(
+        iftype = IftypeDecl(
             name,
             T,
             self.methods.copy())

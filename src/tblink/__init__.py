@@ -11,6 +11,16 @@ from asyncio import Task
 import sys
 import os
 from enum import IntEnum
+from tblink.impl.backend_asyncio import BackendAsyncio
+
+_backend = None
+
+def _get_backend():
+    global _backend
+    
+    if _backend is None:
+        _backend = BackendAsyncio()
+    return _backend
 
 class TimeUnit(IntEnum):
     ps = -12
@@ -56,25 +66,14 @@ def init(
     
     pass
 
-def start(entry_f = None):
-    """Called by the launcher to begin execution"""
-    
-    if entry_f is not None:
-        # Run the specified task
-        TbLink.inst().start(entry_f)
-    else:
-        # Run the first from the test registry
-        if len(TestRgy.inst().tests) == 0:
-            raise Exception("No tests registered")
-        else:
-            TbLink.inst().start(TestRgy.inst().tests[0])
-            
-    # Run a reschedue operation to ensure that the
-    # entrypoint executes
-    TbLink.inst().reschedule()
-    
-def event():
-    return asyncio.Event()
+def Event():
+    return _get_backend().event()
+
+def fork(coro) -> Task:
+    return _get_backend().fork(coro)
+
+def Lock():
+    return _get_backend().lock()
 
 def simtime(units=None):
     if units is not None:
@@ -88,15 +87,6 @@ async def sleep(time, units=None):
             units = TimeUnit.str2unit(units)
     await TbLink.inst().sleep(time, units)
             
-def fork(coro) -> Task:
-    return TbLink.inst().fork(coro)
-
-#def mkInst(T, ep, inst_name, *args, **kwargs):
-#    pass
-
-#def mkMirrorInst(T, ep, inst_name, *args, **kwargs):
-#    pass
-
 def test_init():
     """Called by unit tests to clear state of the package"""
     
