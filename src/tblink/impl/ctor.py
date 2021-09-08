@@ -45,17 +45,18 @@ class Ctor(object):
     def add_method(
             self,
             T,
-            is_task,
-            is_import):
+            is_export,
+            is_task):
         fi = T.__code__
 
         rtype = None
         params = []        
         if fi.co_argcount > 0:
             if hasattr(T, "__annotations__"):
-                if is_task and "return" in T.__annotations__.keys():
-                    raise Exception("Cannot specify a return type for a task")
-                elif not is_task and hasattr(T.__annotations__, "return"):
+#                if is_task and "return" in T.__annotations__.keys():
+#                    raise Exception("Cannot specify a return type for a task")
+#                elif not is_task and hasattr(T.__annotations__, "return"):
+                if not is_task and hasattr(T.__annotations__, "return"):
                     rtype = T.__annotations__["return"]
                     
                 for pname in fi.co_varnames[1:fi.co_argcount]:
@@ -84,8 +85,8 @@ class Ctor(object):
             len(self.methods),
             rtype_o,
             params,
-            is_task,
-            is_import)
+            is_export,
+            is_task)
         self.methods.append(m)
         self.method_m[T.__name__] = m
         return m

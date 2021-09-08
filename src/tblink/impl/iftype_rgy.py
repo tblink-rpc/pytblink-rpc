@@ -52,7 +52,7 @@ class IftypeRgy(EndpointMgrListener):
         else:
             return None
         
-    def find_by_type(self, T):
+    def find_by_type(self, T) -> IftypeDecl:
         if T in self.iftype_type_m.keys():
             return self.iftype_type_m[T]
         else:
@@ -63,7 +63,8 @@ class IftypeRgy(EndpointMgrListener):
         ptb = ParamTypeBuilder(iftype_b)
         
         for i,m in enumerate(iftype.methods):
-            print("Method: %s" % m.name)
+            print("Method: %s is_task=%s" % (
+                m.name, str(m.is_task)))
             mtb = iftype_b.newMethodTypeBuilder(
                 m.name,
                 i,

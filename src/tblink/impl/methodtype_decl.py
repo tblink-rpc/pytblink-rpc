@@ -14,8 +14,8 @@ class MethodTypeDecl(object):
                  id,
                  rtype,
                  params,
-                 is_task, 
-                 is_export):
+                 is_export,
+                 is_task):
         self.name = name
         self.id = id
         self.rtype = rtype
