@@ -9,13 +9,15 @@ from tblink.impl.type_decl import TypeDecl
 class MethodTypeDecl(object):
     """Method-Type representation used by the Python user facade"""
     
-    def __init__(self, 
+    def __init__(self,
+                 T,
                  name, 
                  id,
                  rtype,
                  params,
                  is_export,
                  is_task):
+        self.T    = T
         self.name = name
         self.id = id
         self.rtype = rtype

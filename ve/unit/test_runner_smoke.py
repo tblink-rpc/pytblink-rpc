@@ -16,7 +16,8 @@ class TestRunnerSmoke(TblinkTestCase):
     
     def smoke(self):
         import tblink.impl.cocotb as cocotb
-
+        
+        
         # Must be able to express a 'mirror'
         # An instance is either the API or a mirror of the API
         # 
@@ -123,6 +124,8 @@ class TestRunnerSmoke(TblinkTestCase):
 
     def sw_if(self):
         import tblink.impl.cocotb as cocotb
+        
+        testcase = self
 
         # Must be able to express a 'mirror'
         # An instance is either the API or a mirror of the API
@@ -135,6 +138,7 @@ class TestRunnerSmoke(TblinkTestCase):
             
             def __init__(self):
                 self.send_f = None
+                self.call_counts = [0]*8
                 pass
             
             @tblink.exptask
@@ -142,63 +146,57 @@ class TestRunnerSmoke(TblinkTestCase):
                              addr : ctypes.c_uint64,
                              data : ctypes.c_uint8):
                 print("write8")
-                pass
+                self.call_counts[0] += 1
             
             @tblink.exptask
             async def write16(self, 
                              addr : ctypes.c_uint64,
                              data : ctypes.c_uint16):
                 print("write16")
-                pass
+                self.call_counts[1] += 1
             
             @tblink.exptask
             async def write32(self, 
                              addr : ctypes.c_uint64,
                              data : ctypes.c_uint32):
                 print("write32")
-                pass
+                self.call_counts[2] += 1
             
             @tblink.exptask
             async def write64(self, 
                              addr : ctypes.c_uint64,
                              data : ctypes.c_uint64):
                 print("write64")
-                pass
+                self.call_counts[3] += 1
 
             @tblink.exptask
             async def read8(self, 
                              addr : ctypes.c_uint64) -> ctypes.c_uint8:
                 print("read8")
-                pass
+                self.call_counts[4] += 1
+                return addr + 1
             
             @tblink.exptask
             async def read16(self, 
                              addr : ctypes.c_uint64) -> ctypes.c_uint16:
                 print("read16")
-                pass
+                self.call_counts[5] += 1
+                return addr + 1
             
             @tblink.exptask
             async def read32(self, 
                              addr : ctypes.c_uint64) -> ctypes.c_uint32:
                 print("read32")
-                pass
+                self.call_counts[6] += 1
+                return addr + 1
             
             @tblink.exptask
             async def read64(self, 
                              addr : ctypes.c_uint64) -> ctypes.c_uint64:
                 print("read64")
-                pass            
+                self.call_counts[7] += 1
+                return addr + 1
             
-        # What's the connection strategy? Require an endpoint up-front?
-#        e = Export.mk("foo.bar.baz2", 2)
-
-#        e.send_2(10)
-#        e.send_1(10)
-        
-#        e2 = Export.mk("foo.bar.baz", 3)
-        
-#        e.send_2_exp(0)
-
         class Sw(Component):
             """Represents the software process"""
             
@@ -220,13 +218,22 @@ class TestRunnerSmoke(TblinkTestCase):
                 pass
                 
             async def run(self):
-                print("Run")
+                print("--> Sw.Run")
+                self.raise_objection()
+                for i in range(10):
+                    print("--> read8")
+                    val = await self.api.read8(20+i)
+                    print("<-- read8")
+#                    testcase.assertEqual(val, 20+i+1)
                 await self.api.write8(10, 10)
+                self.drop_objection()
+                print("<-- Sw.Run")
             
         class Host(Component):
             
             def __init__(self, parent=None, name="C2"):
                 super().__init__(parent, name)
+                self.inst = None
                 
             def build(self):
                 print("C2 build")
@@ -253,9 +260,12 @@ class TestRunnerSmoke(TblinkTestCase):
         
         ep1 = EndpointMsgTransport(tp.ep[0])
         ep2 = EndpointMsgTransport(tp.ep[1])
+
+        sw_i = Sw()
+        host_i = Host()
         
-        r1 = Runner(Sw, ep1)
-        r2 = Runner(Host, ep2)
+        r1 = Runner(sw_i, ep1)
+        r2 = Runner(host_i, ep2)
         
 #        rt1 = asyncio.ensure_future(r1.run())
 #        rt2 = asyncio.ensure_future(r2.run())
@@ -263,9 +273,14 @@ class TestRunnerSmoke(TblinkTestCase):
         loop = asyncio.get_event_loop()
         
         print("--> Run", flush=True)
-        loop.run_until_complete(asyncio.gather(
-            r1.run(),
-            r2.run()))
+        t1 = asyncio.ensure_future(r1.run())
+        t2 = asyncio.ensure_future(r2.run())
+        
+        loop.run_until_complete(asyncio.gather(t1, t2))
         print("<-- Run", flush=True)
+        
+        print("t1.done: %s ; t2.done: %s" % (str(t1.done()), str(t2.done())))
 
+        self.assertEqual(host_i.inst.call_counts[4], 10)
+        self.assertEqual(host_i.inst.call_counts[0], 1)
         

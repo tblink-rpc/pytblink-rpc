@@ -30,7 +30,6 @@ class IftypeRgy(EndpointMgrListener):
         return cls._inst
     
     def endpoint_added(self, ep):
-        print("endpoint_added")
         for iftype in self.iftypes:
             self._define_iftype(ep, iftype)
             
@@ -63,8 +62,6 @@ class IftypeRgy(EndpointMgrListener):
         ptb = ParamTypeBuilder(iftype_b)
         
         for i,m in enumerate(iftype.methods):
-            print("Method: %s is_task=%s" % (
-                m.name, str(m.is_task)))
             mtb = iftype_b.newMethodTypeBuilder(
                 m.name,
                 i,
@@ -79,6 +76,7 @@ class IftypeRgy(EndpointMgrListener):
                 
             mt = iftype_b.add_method(mtb)
             m.method_t_ep_m[ep] = mt
+            iftype.method_t2method_m[mt] = m
         
         ep.defineInterfaceType(iftype_b)
         

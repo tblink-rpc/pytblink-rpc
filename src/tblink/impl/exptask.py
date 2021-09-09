@@ -6,6 +6,7 @@ Created on Sep 7, 2021
 import tblink
 from tblink.impl.ctor import Ctor
 from tblink.impl.param_packer import ParamPacker
+from tblink.impl.unpacker import Unpacker
 
 
 class exptask(object):
@@ -39,10 +40,8 @@ class exptask(object):
                 
                 def completion_f(rv):
                     nonlocal retval, ev
-                    print("--> completion_f", flush=True)
                     retval = rv
                     ev.set()
-                    print("<-- completion_f", flush=True)
                 
                 ifinst_data.ifinst.invoke(
                     # TODO: method_t is endpoint-specific
@@ -50,14 +49,17 @@ class exptask(object):
                     params,
                     completion_f)
 
-                print("--> await completion", flush=True)
                 if not ev.is_set():
                     await ev.wait()
-                print("<-- await completion", flush=True)
                     
                 # TODO: Need to unpack return
                 ret = None
                 
+                if retval is not None:
+                    ret = Unpacker().unpack_val(
+                        retval,
+                        ep_method_t.rtype)
+                    
                 return ret
             else:
                 # This is actually an export. It should be okay to

@@ -10,6 +10,7 @@ class Component(object):
         self.parent = parent
         self.children = []
         self.endpoint = None
+        self.objections = 0
         pass
     
     def _do_build(self, ep):
@@ -38,6 +39,16 @@ class Component(object):
     
     def start(self):
         pass
+    
+    def raise_objection(self):
+        self.objections += 1
+    
+    def drop_objection(self):
+        self.objections -= 1
+        pass
+    
+    def _have_objections(self):
+        return self.objections > 0
     
     def mkInst(self, T, inst_name, *args, **kwargs):
         if not hasattr(T, "mkInst"):

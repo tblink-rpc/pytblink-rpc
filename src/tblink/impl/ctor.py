@@ -53,10 +53,7 @@ class Ctor(object):
         params = []        
         if fi.co_argcount > 0:
             if hasattr(T, "__annotations__"):
-#                if is_task and "return" in T.__annotations__.keys():
-#                    raise Exception("Cannot specify a return type for a task")
-#                elif not is_task and hasattr(T.__annotations__, "return"):
-                if not is_task and hasattr(T.__annotations__, "return"):
+                if "return" in T.__annotations__.keys():
                     rtype = T.__annotations__["return"]
                     
                 for pname in fi.co_varnames[1:fi.co_argcount]:
@@ -74,13 +71,16 @@ class Ctor(object):
                         raise Exception("Type for parameter " + pname + " unspecified")
             else:
                 raise Exception("No annotations")
-            
-        rtype_o = None if rtype is None else self._build_tdecl(rtype)
 
+        rtype_o = None
+        if rtype is not None: 
+            rtype_o = self._build_tdecl(rtype)
+            
         if T.__name__ in self.method_m.keys():
             raise Exception("Error: duplicate method name %s", T.__name__)
             
         m = MethodTypeDecl(
+            T,
             T.__name__,
             len(self.methods),
             rtype_o,
@@ -95,7 +95,6 @@ class Ctor(object):
         ret = None
         if ptype in Ctor._primitive_types.keys():
             base_t = Ctor._primitive_types[ptype]
-            print("type: %s" % str(base_t))
             ret = TypeDecl(base_t)
         elif isinstance(ptype, Dict):
             base_t = TypeDeclE.map
@@ -130,14 +129,11 @@ class Ctor(object):
             raise Exception("Python 'int' cannot be used as a type. use ctypes.c_int instead")                
         else:
             print("unhandled")
-        print("base_t: %s" % str(base_t))
-        print("ptype: %s %s" % (str(ptype), str(type(ptype))))
         
         return ret
         
     
     def add_iftype(self, T, name):
-        print("add_iftype: %s" % name)
         iftype = IftypeDecl(
             name,
             T,
@@ -146,26 +142,4 @@ class Ctor(object):
         self.method_m.clear()
 
         IftypeRgy.inst().add_iftype(iftype)
-        
-    def add_bundle(self, T):
-        if hasattr(T, "__annotations__"):
-            for key in T.__annotations__.keys():
-                pass
-#             if is_task and "return" in T.__annotations__.keys():
-#                 raise Exception("Cannot specify a return type for a task")
-#             elif not is_task and hasattr(T.__annotations__, "return"):
-#                 rtype = T.__annotations__["return"]
-#                     
-#             for pname in fi.co_varnames[1:fi.co_argcount]:
-#                 if pname in T.__annotations__.keys():
-#                     ptype = T.__annotations__[pname]
-#                     # TODO: validate type
-#                     print("pname: " + pname + " " + str(ptype))
-#                     params.append(ParamDef(pname, ptype))
-#                 else:
-#                     raise Exception("Type for parameter " + pname + " unspecified")
-        else:
-            raise Exception("No annotations")        
-        pass
-    
     

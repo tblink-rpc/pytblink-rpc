@@ -9,6 +9,10 @@ from tblink.impl.iftype_decl import IftypeDecl
 from tblink.impl.iftype_rgy import IftypeRgy
 from tblink_rpc_core.endpoint_mgr import EndpointMgr
 import tblink
+from tblink.impl.param_unpacker import ParamUnpacker
+from tblink.impl import ifinst_data
+from tblink_rpc_core.method_type import MethodType
+from tblink.impl.packer import Packer
 
 class iftype():
     """Implementation for the 'tblink.iftype' decorator"""
@@ -26,31 +30,42 @@ class iftype():
                 raise Exception("Unsupport iftype kwarg %s" % key)
             
     @staticmethod
-    async def _invoke_b(self, f, params):
+    async def _invoke_b(self, ifinst, call_id, method_t : MethodType, params):
         ifinst_data = self._ifinst_data
-        print("_invoke_b")
-        # TODO: call actual method
+        method_d = ifinst_data.iftype.method_t2method_m[method_t]
         
-        # TODO: send response back via endpoint
-        print("Send response via %s" % str(ifinst_data.ep))
-            
+        # Call actual method
+        ret = await method_d.T(self, *params)
+        
+        if method_t.rtype is not None:
+            retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype)
+        else:
+            retval = None
+
+        ifinst.invoke_rsp(call_id, retval)
+
     @staticmethod
     def _invoke_req_f(self, ifinst, method_t, call_id, params):
-        ifinst_data = self._ifinst_data
+        # Note: 'self' in this context is the user's interface-impl class
+        ifinst_data : IfInstData = self._ifinst_data
         
-        # TODO: lookup method_decl class so we know what to call
         
-        # TODO: Convert parameters to native form
-        call_params = []
-        
+        # Convert parameters to native form
+        call_params = ParamUnpacker().unpack(method_t, params)
+
+        ret = None        
         if method_t.is_blocking:
-            print("is_blocking")
-            tblink.fork(iftype._invoke_b(self, None, call_params))
+            tblink.fork(iftype._invoke_b(
+                self, 
+                ifinst,
+                call_id, 
+                method_t,
+                call_params))
         else:
-            print("non_blocking")
+            method_d = ifinst_data.iftype.method_t2method_m[method_t]
+            ret = method_d.T(*call_params)
             
-        # TODO: need to map method_t -> closure
-        print("req_f")
+        return ret
 
     @staticmethod
     def _mkInst(T, _ep, _inst_name, *args, **kwargs):
@@ -71,11 +86,9 @@ class iftype():
             False, 
             ret.invoke_f)
 
-        ret._ifinst_data = IfInstData(_ep, ifinst, False)
+        ret._ifinst_data = IfInstData(_ep, iftype_p, ifinst, False)
 
         T.__init__(ret, *args, *kwargs)
-
-        print("ep: %s" % str(_ep))
 
         return ret
     
@@ -95,11 +108,9 @@ class iftype():
             True, 
             ret.invoke_f)
 
-        ret._ifinst_data = IfInstData(_ep, ifinst, True)
+        ret._ifinst_data = IfInstData(_ep, iftype_p, ifinst, True)
 
         T.__init__(ret, *args, *kwargs)
-        
-        print("ep: %s" % str(_ep))
         
         return ret
     

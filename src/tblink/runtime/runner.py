@@ -3,7 +3,10 @@ Created on Aug 25, 2021
 
 @author: mballance
 '''
-from tblink.component import Component
+import asyncio
+
+from tblink.model.component import Component
+
 
 class Runner(object):
     """
@@ -48,7 +51,31 @@ class Runner(object):
         # Finally, invoke the start methods
         self.inst._do_start()
 
+        ev = asyncio.Event()        
+        loop = asyncio.get_event_loop()
+        def _end_reschedule():
+            nonlocal ev
+            print("_end_reschedule")
+            ev.set()
+
+        while True:
+            print("--> Schedule loop")
+            loop.call_soon(_end_reschedule)
+            print("--> ev.wait")
+            await ev.wait()
+            print("<-- ev.wait")
+            ev.clear()
+            
+            if not self.inst._have_objections():
+                print("Done")
+                break
+            
+            print("<-- Schedule loop")
+                
+            
+
         # TODO: Run loop
+        
         
         print("<-- run", flush=True)
 
