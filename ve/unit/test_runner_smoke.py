@@ -122,7 +122,7 @@ class TestRunnerSmoke(TblinkTestCase):
             r2.run()))
         print("<-- Run", flush=True)
 
-    def sw_if(self):
+    def test_sw_if(self):
         import tblink.impl.cocotb as cocotb
         
         testcase = self

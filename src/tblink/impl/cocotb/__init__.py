@@ -1,7 +1,8 @@
 #*****************************************************************************
 #* cocotb.__init__.py
 #*
-#* Implements portions of the cocotb API
+#* Emulation layer that implements a subset of the cocotb API in terms 
+#* of tblink
 #*****************************************************************************
 
 from .decorators import *

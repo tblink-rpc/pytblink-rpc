@@ -6,9 +6,6 @@ import importlib
 import os
 import sys
 
-from .test_rgy import TestRgy
-from .ctypes_backend import *
-
 _is_running = False
 
 def init(a, b):
