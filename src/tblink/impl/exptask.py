@@ -26,7 +26,6 @@ class exptask(object):
         
         async def _exptask_impl(self, *args, **kwargs):
             ifinst_data = self._ifinst_data
-            print("_exptask_impl: is_mirror=%s" % (str(ifinst_data.is_mirror)))
             
             if self._ifinst_data.is_mirror:
                 # This is actually an import, since it's a mirror

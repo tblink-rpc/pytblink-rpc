@@ -283,4 +283,160 @@ class TestRunnerSmoke(TblinkTestCase):
 
         self.assertEqual(host_i.inst.call_counts[4], 10)
         self.assertEqual(host_i.inst.call_counts[0], 1)
+
+    def test_cross_call(self):
+        import tblink.impl.cocotb as cocotb
+        
+        testcase = self
+
+        # Must be able to express a 'mirror'
+        # An instance is either the API or a mirror of the API
+        # 
+        # A class must be able to query whether it is of 
+        # API or API-mirror type
+        #
+        @tblink.iftype(name="my_api")
+        class rv_bfm(object):
+            
+            def __init__(self):
+                self.send_f = None
+                self._rsp_f = None
+                self._req_f = None
+                pass
+            
+            @tblink.impfunc
+            def _req(self, 
+                             addr : ctypes.c_uint64,
+                             data : ctypes.c_uint8):
+                print("_req")
+                self._req_f(addr, data)
+            
+            @tblink.expfunc
+            def _rsp(self, data : ctypes.c_uint16):
+                print("_rsp")
+                self._rsp_f(data)
+            
+        class Tb(Component):
+            """Represents the testbench interacting with a BFM"""
+            
+            def __init__(self, parent=None, name="C1"):
+                super().__init__(parent, name)
+                self.rsp_ev = tblink.Event()
+                
+            def build(self):
+                print("TB build")
+                self.bfm_i = self.mkInst(rv_bfm, "bfm_i")
+                
+            def connect(self):
+                print("TB connect")
+                for ifinst in self.endpoint.peerInterfaceInsts():
+                    print("  IfInst: %s" % ifinst.name)
+                self.bfm_i._rsp_f = self._rsp
+                
+            def start(self):
+                print("TB.start", flush=True)
+                tblink.fork(self.run())
+#                asyncio.ensure_future(self.run())
+                pass
+            
+            def _rsp(self, data):
+                self.rsp_ev.set()
+                
+            async def run(self):
+                print("--> TB.Run")
+                self.raise_objection()
+                for i in range(20):
+                    self.bfm_i._req(1, 2)
+                    
+                    print("--> wait_rsp")
+                    if not self.rsp_ev.is_set():
+                        await self.rsp_ev.wait()
+                    self.rsp_ev.clear()
+                    print("<-- wait_rsp")
+                    
+                self.drop_objection()
+                print("<-- TB.Run")
+            
+        class Sim(Component):
+            
+            def __init__(self, parent=None, name="Sim"):
+                super().__init__(parent, name)
+                self.inst = None
+                self.req_ev = tblink.Event()
+                
+            def build(self):
+                print("Sim build")
+                # TODO: do we need the ability to specify the
+                # implementation class for an interface?
+                self.bfm = self.mkMirrorInst(rv_bfm, "bfm_i")
+                
+            def connect(self):
+                print("Sim connect")
+                for ifinst in self.endpoint.peerInterfaceInsts():
+                    print("  IfInst: %s" % ifinst.name)
+                self.bfm._req_f = self._req_f
+                
+            def _req_f(self, addr, data):
+                print("Sim._req_f")
+                self.req_ev.set()
+                
+            def start(self):
+                print("Sim.start", flush=True)
+                tblink.fork(self.run())
+                
+            async def run(self):
+                print("--> Sim.Run")
+                self.raise_objection()
+                for i in range(20):
+                    print("--> Sim.req_ev.wait %d" % i)
+                    if not self.req_ev.is_set():
+                        await self.req_ev.wait()
+                    print("<-- Sim.req_ev.wait %d" % i)
+                    
+                    self.req_ev.clear()
+                    
+                    print("--> Sim._rsp %d" % i)
+                    self.bfm._rsp(0)
+                    print("<-- Sim._rsp %d" % i)
+                self.drop_objection()
+                print("<-- Sim.Run")
+                
+
+        tp = TransportDualFifo()
+        
+        ep1 = EndpointMsgTransport(tp.ep[0])
+        ep2 = EndpointMsgTransport(tp.ep[1])
+
+        tb_i = Tb()
+        sim_i = Sim()
+        
+        r1 = Runner(tb_i, ep1)
+        r2 = Runner(sim_i, ep2)
+        
+#        rt1 = asyncio.ensure_future(r1.run())
+#        rt2 = asyncio.ensure_future(r2.run())
+
+        loop = asyncio.get_event_loop()
+        
+        print("--> Run", flush=True)
+        t1 = asyncio.ensure_future(r1.run())
+        t2 = asyncio.ensure_future(r2.run())
+        
+        loop.run_until_complete(
+            asyncio.wait(
+                [
+                    asyncio.gather(t1, t2),
+                    asyncio.sleep(2)
+                ], return_when=asyncio.FIRST_COMPLETED))
+#        loop.run_until_complete(asyncio.gather(t1, t2))
+        print("<-- Run", flush=True)
+        
+        self.assertTrue(t1.done())
+        self.assertTrue(t2.done())
+        
+        print("t1.done: %s ; t2.done: %s" % (str(t1.done()), str(t2.done())))
+
+#        self.assertEqual(host_i.inst.call_counts[4], 10)
+#        self.assertEqual(host_i.inst.call_counts[0], 1)        
+        
         

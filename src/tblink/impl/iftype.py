@@ -63,7 +63,14 @@ class iftype():
                 call_params))
         else:
             method_d = ifinst_data.iftype.method_t2method_m[method_t]
-            ret = method_d.T(*call_params)
+            ret = method_d.T(self, *call_params)
+            
+            if method_t.rtype is not None:
+                retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype)
+            else:
+                retval = None
+
+            ifinst.invoke_rsp(call_id, retval)
             
         return ret
 

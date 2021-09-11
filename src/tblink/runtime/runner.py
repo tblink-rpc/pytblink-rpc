@@ -13,7 +13,8 @@ class Runner(object):
     Runs build/connect/start/run on the specified class or object.
     Assumes an endpoint has already been established
     """
-    
+
+    DEBUG_EN = False
     
     def __init__(self, 
                  T_or_inst,
@@ -23,9 +24,11 @@ class Runner(object):
         self.endpoint = endpoint
         
     async def run(self):
-        print("--> run", flush=True)
+        if Runner.DEBUG_EN:
+            print("--> run", flush=True)
         
-        print("type: %s" % str(type(self.T_or_inst)))
+        if Runner.DEBUG_EN:
+            print("type: %s" % str(type(self.T_or_inst)))
         
         if isinstance(self.T_or_inst, Component):
             # Need to create an instance
@@ -55,29 +58,39 @@ class Runner(object):
         loop = asyncio.get_event_loop()
         def _end_reschedule():
             nonlocal ev
-            print("_end_reschedule")
+            if Runner.DEBUG_EN:
+                print("_end_reschedule")
             ev.set()
 
         while True:
-            print("--> Schedule loop")
+            if Runner.DEBUG_EN:
+                print("--> Schedule loop")
             loop.call_soon(_end_reschedule)
-            print("--> ev.wait")
-            await ev.wait()
-            print("<-- ev.wait")
+            if Runner.DEBUG_EN:
+                print("--> ev.wait")
+            if not ev.is_set():
+                await ev.wait()
+            if Runner.DEBUG_EN:
+                print("<-- ev.wait")
             ev.clear()
-            
+
+            if Runner.DEBUG_EN:
+                print("Objections: %d" % self.inst.objections)
             if not self.inst._have_objections():
-                print("Done")
+                if Runner.DEBUG_EN:
+                    print("Done")
                 break
             
-            print("<-- Schedule loop")
+            if Runner.DEBUG_EN:
+                print("<-- Schedule loop")
                 
             
 
         # TODO: Run loop
         
         
-        print("<-- run", flush=True)
+        if Runner.DEBUG_EN:
+            print("<-- run", flush=True)
 
         pass
     
