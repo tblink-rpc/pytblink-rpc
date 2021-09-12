@@ -11,6 +11,7 @@ from tblink_rpc_core.transport_dual_fifo import TransportDualFifo
 from tblink.runtime.runner import Runner
 import ctypes
 import tblink
+from test_endpoint_services import TestEndpointServices
 
 class TestRunnerSmoke(TblinkTestCase):
     
@@ -205,6 +206,8 @@ class TestRunnerSmoke(TblinkTestCase):
                 
             def build(self):
                 print("C1 build")
+                testcase.assertEqual(len(self.endpoint.args()), 1)
+                testcase.assertEqual(self.endpoint.args()[0], "b")
                 self.api = self.mkMirrorInst(SwIf, "rw_api")
                 
             def connect(self):
@@ -237,6 +240,9 @@ class TestRunnerSmoke(TblinkTestCase):
                 
             def build(self):
                 print("C2 build")
+                
+                testcase.assertEqual(len(self.endpoint.args()), 1)
+                testcase.assertEqual(self.endpoint.args()[0], "a")
                 # TODO: do we need the ability to specify the
                 # implementation class for an interface?
                 self.inst = self.mkInst(SwIf, "rw_api")
@@ -260,9 +266,16 @@ class TestRunnerSmoke(TblinkTestCase):
         
         ep1 = EndpointMsgTransport(tp.ep[0])
         ep2 = EndpointMsgTransport(tp.ep[1])
-
+        
+        eps1 = TestEndpointServices(["a"])
+        eps2 = TestEndpointServices(["b"])
+        
+        ep1.init(eps1, None)
+        ep2.init(eps2, None)
+        
         sw_i = Sw()
         host_i = Host()
+        
         
         r1 = Runner(sw_i, ep1)
         r2 = Runner(host_i, ep2)

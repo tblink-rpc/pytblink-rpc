@@ -29,6 +29,10 @@ class Runner(object):
         
         if Runner.DEBUG_EN:
             print("type: %s" % str(type(self.T_or_inst)))
+            
+        # Ensure the initialization sequence is complete
+        while not self.endpoint.is_init_complete():
+            await self.endpoint.process_one_message_a()
         
         if isinstance(self.T_or_inst, Component):
             # Need to create an instance
@@ -41,7 +45,10 @@ class Runner(object):
         
         # Now, collect what has been registered by
         # the build phase
-        await self.endpoint.build_complete()
+        self.endpoint.build_complete()
+        
+        while not self.endpoint.is_build_complete():
+            await self.endpoint.process_one_message_a()
         
         # TODO: notify of a successful build phase
         
@@ -49,7 +56,10 @@ class Runner(object):
         self.inst._do_connect()
         
         # TODO: notify of a successful connect phase
-        await self.endpoint.connect_complete()
+        self.endpoint.connect_complete()
+        
+        while not self.endpoint.is_connect_complete():
+            await self.endpoint.process_one_message_a()
         
         # Finally, invoke the start methods
         self.inst._do_start()
