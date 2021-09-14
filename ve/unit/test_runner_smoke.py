@@ -263,7 +263,7 @@ class TestRunnerSmoke(TblinkTestCase):
                 
 
         tp = TransportDualFifo()
-        
+
         ep1 = EndpointMsgTransport(tp.ep[0])
         ep2 = EndpointMsgTransport(tp.ep[1])
         

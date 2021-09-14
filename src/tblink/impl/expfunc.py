@@ -45,8 +45,8 @@ class expfunc(object):
 #                if not ev.is_set():
 #                    await ev.wait()
                     
-                if not is_complete:
-                    raise Exception("TODO: need to busy-wait for split response")
+                while not is_complete:
+                    ifinst_data.ep.process_one_message()
                 
                 # Pack return value if provided
                 ret = None

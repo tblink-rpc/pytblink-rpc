@@ -54,8 +54,8 @@ class impfunc(object):
 #                    await ev.wait()
                     
                 # TODO: Need to unpack return
-                if not is_complete:
-                    raise Exception("TODO: need to busy-wait for split response")
+                while not is_complete:
+                    ifinst_data.ep.process_one_message()
                 
                 ret = None
                 if retval is not None:
