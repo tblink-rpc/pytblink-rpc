@@ -12,7 +12,7 @@ from TblinkTestCase import TblinkTestCase
 import multiprocessing as mp
 import tblink
 from tblink.impl.iftype_rgy import IftypeRgy
-from tblink.model.component import Component
+from tblink.component import Component
 from tblink.runtime.runner import Runner
 from tblink_rpc_core.endpoint_msg_transport import EndpointMsgTransport
 from tblink_rpc_core.transport_json_socket import TransportJsonSocket
@@ -22,6 +22,8 @@ from test_endpoint_services import TestEndpointServices
 class TestRunnerMP(TblinkTestCase):
     
     def test_smoke(self):
+        
+        TOTAL_COUNT = 10000
         
         @tblink.iftype(name="my_api")
         class rv_bfm(object):
@@ -38,11 +40,13 @@ class TestRunnerMP(TblinkTestCase):
                              data : ctypes.c_uint8):
 #                print("_req")
                 self._req_f(addr, data)
-            
+
+            # TODO: Consider non-blocking functions
+            # maybe streaming/async/...            
             @tblink.expfunc
             def _rsp(self, data : ctypes.c_uint16):
 #                print("_rsp")
-                self._rsp_f(data)        
+                self._rsp_f(data)
                 
         class Tb(Component):
             """Represents the testbench interacting with a BFM"""
@@ -73,7 +77,7 @@ class TestRunnerMP(TblinkTestCase):
             async def run(self):
                 print("--> TB.Run")
                 self.raise_objection()
-                for i in range(20):
+                for i in range(TOTAL_COUNT):
                     self.bfm_i._req(1, 2)
                     
                     if not self.rsp_ev.is_set():
@@ -148,7 +152,7 @@ class TestRunnerMP(TblinkTestCase):
             async def run(self):
                 print("--> Sim.Run")
                 self.raise_objection()
-                for i in range(20):
+                for i in range(TOTAL_COUNT):
                     if not self.req_ev.is_set():
                         await self.req_ev.wait()
                     

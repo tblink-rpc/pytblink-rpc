@@ -5,7 +5,7 @@ Created on Aug 25, 2021
 '''
 import asyncio
 
-from tblink.model.component import Component
+from tblink.component import Component
 
 
 class Runner(object):
