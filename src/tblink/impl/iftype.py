@@ -17,9 +17,12 @@ from tblink.impl.packer import Packer
 class iftype():
     """Implementation for the 'tblink.iftype' decorator"""
     
-    def __init__(self, kwargs):
+    def __init__(self, args, kwargs):
         self.name = None
         self.public = True
+        
+        print("args=%s" % str(args))
+        print("kwargs=%s" % str(kwargs))
         
         for key in kwargs.keys():
             if key == "name":
@@ -28,6 +31,14 @@ class iftype():
                 self.public = bool(kwargs[key])
             else:
                 raise Exception("Unsupport iftype kwarg %s" % key)
+
+        if len(args) == 1:            
+            if self.name is None:
+                self.name = args[0]
+            else:
+                raise Exception("Name specified in two ways")
+        else:
+            raise Exception("Only zero or one argument permitted")
             
     @staticmethod
     async def _invoke_b(self, ifinst, call_id, method_t : MethodType, params):

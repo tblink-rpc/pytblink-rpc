@@ -16,7 +16,7 @@ def iftype(*args, **kwargs):
         # No-argument form
         return iftype_impl({})(args[0])
     else:
-        return iftype_impl(kwargs)
+        return iftype_impl(args, kwargs)
     
 def impfunc(*args, **kwargs):
     """Marks an imported function"""
