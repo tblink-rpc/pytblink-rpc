@@ -7,6 +7,7 @@ import tblink
 from tblink.impl.ctor import Ctor
 from tblink.impl.param_packer import ParamPacker
 from tblink.impl.unpacker import Unpacker
+from tblink_rpc_core.tblink import TbLink
 
 
 class exptask(object):
@@ -34,7 +35,7 @@ class exptask(object):
                 ep_method_t = method_t.method_t_ep_m[ifinst_data.ep]
                 params = ParamPacker(ifinst_data.ep, ep_method_t).pack(*args, *kwargs)
 
-                ev = tblink.Event()
+                ev = TbLink.inst().mkEvent()
                 retval = None
                 
                 def completion_f(rv):
@@ -42,7 +43,7 @@ class exptask(object):
                     retval = rv
                     ev.set()
                 
-                ifinst_data.ifinst.invoke(
+                ifinst_data.ifinst.invoke_nb(
                     # TODO: method_t is endpoint-specific
                     ep_method_t,
                     params,

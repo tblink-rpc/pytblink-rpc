@@ -12,6 +12,7 @@ import sys
 import os
 from enum import IntEnum
 from tblink.impl.backend_asyncio import BackendAsyncio
+import tblink_rpc_core
 
 _backend = None
 
@@ -67,7 +68,7 @@ def init(
     pass
 
 def Event():
-    return _get_backend().event()
+    return tblink_rpc_core.tblink.TbLink.inst().mkEvent()
 
 def fork(coro) -> Task:
     return _get_backend().fork(coro)

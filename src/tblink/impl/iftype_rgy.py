@@ -7,6 +7,7 @@ from tblink_rpc_core.endpoint_mgr import EndpointMgr
 from tblink_rpc_core.endpoint_mgr_listener import EndpointMgrListener
 from tblink.impl.iftype_decl import IftypeDecl
 from tblink.impl.param_type_builder import ParamTypeBuilder
+from typing import List
 
 class IftypeRgy(EndpointMgrListener):
     
@@ -33,6 +34,27 @@ class IftypeRgy(EndpointMgrListener):
         for iftype in self.iftypes:
             self._define_iftype(ep, iftype)
             
+    def build_bfms(self, ep) -> List[object]:
+        ret = []
+        print("build_bfms", flush=True)
+        for ifinst in ep.getPeerInterfaceInsts():
+            tname = ifinst.type().name()
+            
+            if tname not in self.iftype_name_m.keys():
+                raise Exception("Interface type %s (instance %s) is not registered" % (
+                    tname, ifinst.name()))
+
+            try:            
+                _iftype : IftypeDecl = self.iftype_name_m[tname]
+                print("iftype: %s %s" % (str(type(_iftype)), str(_iftype)))
+            
+                bfm_inst = _iftype.T.mkMirrorInst(ep, ifinst.name())
+                ret.append(bfm_inst)
+                print("  ifinst: %s %s" % (ifinst.name(), ifinst.type().name()))
+            except Exception as e:
+                print("Exception: %s" % str(e), flush=True)
+        return ret
+
     def add_iftype(self, iftype):
         if iftype.name in self.iftype_name_m.keys():
             raise Exception("Duplicate iftype %s" % iftype.name)

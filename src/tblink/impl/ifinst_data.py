@@ -16,6 +16,7 @@ class IfInstData(object):
         self.ep = ep
         self.iftype = iftype
         self.ifinst = ifinst
+        self.inst_name = ifinst.name()
         self.is_mirror = is_mirror
         self.methodt2decl_m = {}
 

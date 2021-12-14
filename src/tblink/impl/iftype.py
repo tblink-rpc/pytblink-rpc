@@ -96,10 +96,10 @@ class iftype():
         # get the actual endpoint-specific 'iftype' from the
         # endpoint
         iftype_p : IftypeDecl = IftypeRgy.inst().find_by_type(T)
-        iftype = _ep.findInterfaceType(iftype_p.name)
+        _iftype = _ep.findInterfaceType(iftype_p.name)
 
         ifinst = _ep.defineInterfaceInst(
-            iftype, 
+            _iftype, 
             _inst_name, 
             False, 
             ret.invoke_f)
@@ -118,10 +118,10 @@ class iftype():
         ret = T.__new__(T)
         
         iftype_p = IftypeRgy.inst().find_by_type(T)
-        iftype = _ep.findInterfaceType(iftype_p.name)
+        _iftype = _ep.findInterfaceType(iftype_p.name)
 
         ifinst = _ep.defineInterfaceInst(
-            iftype, 
+            _iftype, 
             _inst_name, 
             True, 
             ret.invoke_f)
@@ -151,10 +151,11 @@ class iftype():
         if self.name is None:
             self.name = T.__name__
 
-        T.invoke_f = iftype._invoke_req_f
+        setattr(T, "invoke_f", iftype._invoke_req_f)
         T.mkInst = lambda _ep, _inst_name, *args, **kwargs: iftype._mkInst(T, _ep, _inst_name, *args, *kwargs)
         T.mkMirrorInst = lambda _ep, _inst_name, *args, **kwargs: iftype._mkMirrorInst(T, _ep, _inst_name, *args, *kwargs)
-        T.inst_name = iftype._inst_name
+        
+        setattr(T, "inst_name", iftype._inst_name)
         T.is_mirror = iftype._is_mirror
 
         # TODO: do we need to hook the ctor?
