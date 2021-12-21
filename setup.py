@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='pytblink-rpc',
-    packages=['tblink'],
+    packages=['tblink_rpc'],
     package_dir={'' : 'src'},
     author = "Matthew Ballance",
     author_email = "matt.ballance@gmail.com",
