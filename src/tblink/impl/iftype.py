@@ -43,13 +43,13 @@ class iftype():
     @staticmethod
     async def _invoke_b(self, ifinst, call_id, method_t : MethodType, params):
         ifinst_data = self._ifinst_data
-        method_d = ifinst_data.iftype.method_t2method_m[method_t]
+        method_d = ifinst_data.iftype.method_t2method_m[method_t.name()]
         
         # Call actual method
         ret = await method_d.T(self, *params)
         
-        if method_t.rtype is not None:
-            retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype)
+        if method_t.rtype() is not None:
+            retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype())
         else:
             retval = None
 
@@ -57,6 +57,7 @@ class iftype():
 
     @staticmethod
     def _invoke_req_f(self, ifinst, method_t, call_id, params):
+        print("--> _invoke_req_f %s" % str(type(method_t)), flush=True)
         # Note: 'self' in this context is the user's interface-impl class
         ifinst_data : IfInstData = self._ifinst_data
         
@@ -65,7 +66,8 @@ class iftype():
         call_params = ParamUnpacker().unpack(method_t, params)
 
         ret = None        
-        if method_t.is_blocking:
+        if method_t.is_blocking():
+            print("-- is_blocking", flush=True)
             tblink.fork(iftype._invoke_b(
                 self, 
                 ifinst,
@@ -73,15 +75,18 @@ class iftype():
                 method_t,
                 call_params))
         else:
-            method_d = ifinst_data.iftype.method_t2method_m[method_t]
+            print("-- non_blocking", flush=True)
+            method_d = ifinst_data.iftype.method_t2method_m[method_t.name()]
             ret = method_d.T(self, *call_params)
             
-            if method_t.rtype is not None:
-                retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype)
+            if method_t.rtype() is not None:
+                retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype())
             else:
                 retval = None
 
             ifinst.invoke_rsp(call_id, retval)
+            
+        print("<-- _invoke_req_f ", flush=True)
             
         return ret
 

@@ -34,7 +34,7 @@ class expfunc(object):
                     nonlocal retval, is_complete
                     retval = rv
                     is_complete = True
-                
+
                 ifinst_data.ifinst.invoke(
                     # TODO: method_t is endpoint-specific
                     ep_method_t,
@@ -44,6 +44,9 @@ class expfunc(object):
                 # TODO: how do we spin until receiving a response?
 #                if not ev.is_set():
 #                    await ev.wait()
+
+                if not is_complete:
+                    raise Exception("Export function didn't supply a response")
                     
                 while not is_complete:
                     ifinst_data.ep.process_one_message()

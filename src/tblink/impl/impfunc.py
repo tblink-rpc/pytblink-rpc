@@ -26,6 +26,7 @@ class impfunc(object):
             if ifinst_data.is_mirror:
                 # This is actually an export, since the ifinst is a mirror
                 # It should be okay to invoke it directly.
+                print("-- invoke %s" % str(T), flush=True)
                 return T(self, *args, **kwargs)                 
             else:
                 # This is a true import, so we need to queue the
@@ -52,6 +53,9 @@ class impfunc(object):
                 # TODO: how do we spin until receiving a response?
 #                if not ev.is_set():
 #                    await ev.wait()
+
+                if not is_complete:
+                    raise Exception("Response not received")
                     
                 # TODO: Need to unpack return
                 while not is_complete:
