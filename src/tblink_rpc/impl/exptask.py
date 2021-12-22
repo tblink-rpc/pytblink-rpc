@@ -3,10 +3,10 @@ Created on Sep 7, 2021
 
 @author: mballance
 '''
-import tblink
-from tblink.impl.ctor import Ctor
-from tblink.impl.param_packer import ParamPacker
-from tblink.impl.unpacker import Unpacker
+import tblink_rpc
+from tblink_rpc.impl.ctor import Ctor
+from tblink_rpc.impl.param_packer import ParamPacker
+from tblink_rpc.impl.unpacker import Unpacker
 from tblink_rpc_core.tblink import TbLink
 
 

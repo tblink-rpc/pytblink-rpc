@@ -4,7 +4,7 @@ Created on Aug 24, 2021
 @author: mballance
 '''
 from typing import List, Tuple
-from tblink.impl.type_decl import TypeDecl
+from tblink_rpc.impl.type_decl import TypeDecl
 
 class MethodTypeDecl(object):
     """Method-Type representation used by the Python user facade"""

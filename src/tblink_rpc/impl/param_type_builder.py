@@ -3,7 +3,7 @@ Created on Sep 6, 2021
 
 @author: mballance
 '''
-from tblink.impl.type_decl import TypeDecl, TypeDeclE
+from tblink_rpc.impl.type_decl import TypeDecl, TypeDeclE
 from tblink_rpc_core.type import Type
 
 class ParamTypeBuilder(object):

@@ -3,8 +3,8 @@ Created on Mar 9, 2021
 
 @author: mballance
 '''
-from tblink.backend import Backend
-from tblink.tblink import TbLink
+from tblink_rpc.backend import Backend
+from tblink_rpc.tblink import TbLink
 
 
 class TestBackend(Backend):

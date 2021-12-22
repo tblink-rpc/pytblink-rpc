@@ -3,7 +3,7 @@ Created on Sep 7, 2021
 
 @author: mballance
 '''
-from tblink.impl.ctor import Ctor
+from tblink_rpc.impl.ctor import Ctor
 
 
 class imptask(object):

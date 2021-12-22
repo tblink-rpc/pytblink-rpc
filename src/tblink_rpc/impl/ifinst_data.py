@@ -3,7 +3,7 @@ Created on Sep 7, 2021
 
 @author: mballance
 '''
-from tblink.impl.iftype_decl import IftypeDecl
+from tblink_rpc.impl.iftype_decl import IftypeDecl
 from tblink_rpc_core.interface_inst import InterfaceInst
 
 class IfInstData(object):

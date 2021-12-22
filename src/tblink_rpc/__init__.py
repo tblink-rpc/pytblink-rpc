@@ -3,15 +3,15 @@
 #****************************************************************************
 
 from .decorators import *
-from tblink.backend import Backend
-from tblink.tblink import TbLink
+from tblink_rpc.backend import Backend
+from tblink_rpc.tblink import TbLink
 import importlib
 import asyncio
 from asyncio import Task
 import sys
 import os
 from enum import IntEnum
-from tblink.impl.backend_asyncio import BackendAsyncio
+from tblink_rpc.impl.backend_asyncio import BackendAsyncio
 import tblink_rpc_core
 
 _backend = None

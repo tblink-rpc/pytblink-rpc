@@ -6,10 +6,10 @@ Created on Jan 31, 2021
 import ctypes
 from typing import Dict, List
 import typing
-from tblink.impl.iftype_rgy import IftypeRgy
-from tblink.impl.methodtype_decl import MethodTypeDecl
-from tblink.impl.type_decl import TypeDecl, TypeDeclE
-from tblink.impl.iftype_decl import IftypeDecl
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
+from tblink_rpc.impl.methodtype_decl import MethodTypeDecl
+from tblink_rpc.impl.type_decl import TypeDecl, TypeDeclE
+from tblink_rpc.impl.iftype_decl import IftypeDecl
 
 class Ctor(object):
 

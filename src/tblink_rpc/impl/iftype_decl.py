@@ -4,7 +4,7 @@ Created on Aug 24, 2021
 @author: mballance
 '''
 from typing import List
-from tblink.impl.methodtype_decl import MethodTypeDecl
+from tblink_rpc.impl.methodtype_decl import MethodTypeDecl
 
 class IftypeDecl(object):
     """Captures the interface type from the user facade"""

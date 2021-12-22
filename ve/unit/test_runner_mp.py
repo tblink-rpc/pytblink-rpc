@@ -11,9 +11,9 @@ import socket
 from TblinkTestCase import TblinkTestCase
 import multiprocessing as mp
 import tblink
-from tblink.impl.iftype_rgy import IftypeRgy
-from tblink.component import Component
-from tblink.runtime.runner import Runner
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
+from tblink_rpc.component import Component
+from tblink_rpc.runtime.runner import Runner
 from tblink_rpc_core.endpoint_msg_transport import EndpointMsgTransport
 from tblink_rpc_core.transport_json_socket import TransportJsonSocket
 from test_endpoint_services import TestEndpointServices

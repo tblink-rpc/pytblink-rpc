@@ -6,7 +6,7 @@ Created on Mar 9, 2021
 from unittest.case import TestCase
 import tblink
 from test_backend import TestBackend
-from tblink.tblink import TbLink
+from tblink_rpc.tblink import TbLink
 
 class TblinkTest(TestCase):
     

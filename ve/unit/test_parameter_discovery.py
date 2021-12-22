@@ -8,9 +8,9 @@ from typing import List, Dict
 from unittest.case import TestCase
 
 import tblink
-from tblink.impl.iftype_rgy import IftypeRgy
-from tblink.model.method_type import MethodType
-from tblink.model.type_decl import TypeDeclE
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
+from tblink_rpc.model.method_type import MethodType
+from tblink_rpc.model.type_decl import TypeDeclE
 
 
 class TestParameterDiscovery(TestCase):

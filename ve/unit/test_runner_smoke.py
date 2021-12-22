@@ -4,11 +4,11 @@ Created on Aug 25, 2021
 @author: mballance
 '''
 from TblinkTestCase import TblinkTestCase
-from tblink.component import Component
+from tblink_rpc.component import Component
 import asyncio
 from tblink_rpc_core.endpoint_msg_transport import EndpointMsgTransport
 from tblink_rpc_core.transport_dual_fifo import TransportDualFifo
-from tblink.runtime.runner import Runner
+from tblink_rpc.runtime.runner import Runner
 import ctypes
 import tblink
 from test_endpoint_services import TestEndpointServices

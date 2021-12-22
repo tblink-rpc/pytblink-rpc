@@ -8,9 +8,9 @@ import asyncio
 import socket
 import sys
 import os
-from tblink.runtime.socket_message_transport import SocketMessageTransport
+from tblink_rpc.runtime.socket_message_transport import SocketMessageTransport
 import json
-from tblink.runtime.initialize_req import InitializeReq
+from tblink_rpc.runtime.initialize_req import InitializeReq
 
 def getparser():
     parser = argparse.ArgumentParser()

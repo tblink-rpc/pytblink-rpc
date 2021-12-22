@@ -3,16 +3,16 @@ Created on Sep 7, 2021
 
 @author: mballance
 '''
-from tblink.impl.ctor import Ctor
-from tblink.impl.ifinst_data import IfInstData
-from tblink.impl.iftype_decl import IftypeDecl
-from tblink.impl.iftype_rgy import IftypeRgy
+import tblink_rpc
+from tblink_rpc.impl.ctor import Ctor
+from tblink_rpc.impl.ifinst_data import IfInstData
+from tblink_rpc.impl.iftype_decl import IftypeDecl
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
 from tblink_rpc_core.endpoint_mgr import EndpointMgr
-import tblink
-from tblink.impl.param_unpacker import ParamUnpacker
-from tblink.impl import ifinst_data
+from tblink_rpc.impl.param_unpacker import ParamUnpacker
+from tblink_rpc.impl import ifinst_data
 from tblink_rpc_core.method_type import MethodType
-from tblink.impl.packer import Packer
+from tblink_rpc.impl.packer import Packer
 
 class iftype():
     """Implementation for the 'tblink.iftype' decorator"""
@@ -68,7 +68,7 @@ class iftype():
         ret = None        
         if method_t.is_blocking():
             print("-- is_blocking", flush=True)
-            tblink.fork(iftype._invoke_b(
+            tblink_rpc.fork(iftype._invoke_b(
                 self, 
                 ifinst,
                 call_id, 

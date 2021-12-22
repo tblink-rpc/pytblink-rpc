@@ -5,8 +5,8 @@ Created on Aug 22, 2021
 '''
 from tblink_rpc_core.endpoint_mgr import EndpointMgr
 from tblink_rpc_core.endpoint_mgr_listener import EndpointMgrListener
-from tblink.impl.iftype_decl import IftypeDecl
-from tblink.impl.param_type_builder import ParamTypeBuilder
+from tblink_rpc.impl.iftype_decl import IftypeDecl
+from tblink_rpc.impl.param_type_builder import ParamTypeBuilder
 from typing import List
 
 class IftypeRgy(EndpointMgrListener):
@@ -38,6 +38,7 @@ class IftypeRgy(EndpointMgrListener):
         ret = []
         print("build_bfms", flush=True)
         for ifinst in ep.getPeerInterfaceInsts():
+            print("ifinst: %s" % ifinst.name(), flush=True)
             tname = ifinst.type().name()
             
             if tname not in self.iftype_name_m.keys():

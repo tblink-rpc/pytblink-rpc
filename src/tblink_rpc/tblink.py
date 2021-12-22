@@ -7,7 +7,7 @@ import asyncio
 from asyncio.coroutines import iscoroutine
 import inspect
 from asyncio import Task
-from tblink.backend import Backend
+from tblink_rpc.backend import Backend
 
 class TbLink(object):
     
