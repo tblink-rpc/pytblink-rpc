@@ -16,20 +16,20 @@ class Component(object):
     def _do_build(self, ep):
         self.endpoint = ep
         
-        self.build()
+        self.build(ep)
         for c in self.children:
             c._do_build(ep)
     
-    def build(self):
+    def build(self, ep):
         pass
     
-    def _do_connect(self):
+    def _do_connect(self, ep):
         
         for c in self.children:
-            c._do_connect()
-        self.connect()
+            c._do_connect(ep)
+        self.connect(ep)
     
-    def connect(self):
+    def connect(self, ep):
         pass
     
     def _do_start(self):
@@ -49,6 +49,10 @@ class Component(object):
     
     def _have_objections(self):
         return self.objections > 0
+    
+    async def sleep(self, time, unit):
+        pass
+        
     
     def mkInst(self, T, inst_name, *args, **kwargs):
         if not hasattr(T, "mkInst"):

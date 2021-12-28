@@ -31,7 +31,7 @@ class Runner(object):
             print("type: %s" % str(type(self.T_or_inst)))
             
         # Ensure the initialization sequence is complete
-        while not self.endpoint.is_init_complete():
+        while not self.endpoint.is_init():
             await self.endpoint.process_one_message_a()
         
         if isinstance(self.T_or_inst, Component):

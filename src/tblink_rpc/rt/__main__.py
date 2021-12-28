@@ -5,24 +5,32 @@ Created on Mar 29, 2021
 '''
 import argparse
 import asyncio
-import sys
 import os
-from tblink_rpc_core.tblink import TbLink
+import sys
 import traceback
+
+from tblink_rpc.rt.endpoint_sequencer import EndpointSequencer
 from tblink_rpc_core.endpoint import Endpoint
+from tblink_rpc_core.tblink import TbLink
+
 
 def getparser():
     parser = argparse.ArgumentParser()
     
     return parser
 
+_seqr = None
+
 def main():
+    global _seqr
+    
     print("Hello")
     
     tblink = TbLink.inst()
     
     ep : Endpoint = None
     err = ""
+    is_async = False
 
     # Determine what integration is being used
     if "TBLINK_PORT" in os.environ.keys():
@@ -35,17 +43,29 @@ def main():
         ep,err = launch_t.launch(params, None)
         print("ep=%s ; err=%s" % (str(ep), str(err)), flush=True)
         print("launch_t=%s" % str(launch_t), flush=True)
-        
-        for a in ep.args():
-            print("Arg: %s" % str(a))
     else:
         # We're running as loopback
         print("TbLink Note: Running in loopback mode")
+        launch_t = tblink.findLaunchType("connect.loopback")
+        params = launch_t.newLaunchParams()
+        ep,err = launch_t.launch(params, None)
+        
+        # With loopback, we expect to receive messages
+        # asynchronously.
         pass
-    pass
-
+    
     if ep is None:
-        raise Exception("")
+        raise Exception("Failed to launch endpoint: %s" % err)
+        
+    ep.init(None)
+    _seqr = EndpointSequencer(ep, is_async)
+
+    try:    
+        _seqr.run()
+    except Exception as e:
+        print("Exception: %s" % str(e), flush=True)
+        sys.exit(1)
+    pass
 
 if __name__ == "__main__":
     try:
@@ -53,4 +73,6 @@ if __name__ == "__main__":
     except Exception as e:
         print("Exception: %s" % str(e), flush=True)
         traceback.print_exc()
+        
+    print("Exiting Main", flush=True)
             
