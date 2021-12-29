@@ -11,7 +11,10 @@ import traceback
 
 from tblink_rpc.rt.endpoint_sequencer import EndpointSequencer
 from tblink_rpc_core.endpoint import Endpoint
-from tblink_rpc_core.tblink import TbLink
+from tblink_rpc.tblink import TbLink
+import tblink_rpc_core
+from tblink_rpc.rt.backend_asyncio import BackendAsyncio
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
 
 
 def getparser():
@@ -25,8 +28,9 @@ def main():
     global _seqr
     
     print("Hello")
-    
+
     tblink = TbLink.inst()
+    tblink.tblink_core = tblink_rpc_core.tblink.TbLink.inst()
     
     ep : Endpoint = None
     err = ""
@@ -56,9 +60,11 @@ def main():
     
     if ep is None:
         raise Exception("Failed to launch endpoint: %s" % err)
-        
+    
+    tblink.dflt_backend = BackendAsyncio(ep)
+    
     ep.init(None)
-    _seqr = EndpointSequencer(ep, is_async)
+    _seqr = EndpointSequencer(ep, tblink.dflt_backend, is_async)
 
     try:    
         _seqr.run()

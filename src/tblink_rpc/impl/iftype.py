@@ -49,7 +49,7 @@ class iftype():
         ret = await method_d.T(self, *params)
         
         if method_t.rtype() is not None:
-            retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype())
+            retval = Packer(ifinst_data.backend.ep()).pack_value(ret, method_t.rtype())
         else:
             retval = None
 
@@ -68,7 +68,7 @@ class iftype():
         ret = None        
         if method_t.is_blocking():
             print("-- is_blocking", flush=True)
-            tblink_rpc.fork(iftype._invoke_b(
+            ifinst_data.backend.start_soon(iftype._invoke_b(
                 self, 
                 ifinst,
                 call_id, 
@@ -80,7 +80,7 @@ class iftype():
             ret = method_d.T(self, *call_params)
             
             if method_t.rtype() is not None:
-                retval = Packer(ifinst_data.ep).pack_value(ret, method_t.rtype())
+                retval = Packer(ifinst_data.backend.ep()).pack_value(ret, method_t.rtype())
             else:
                 retval = None
 
@@ -91,8 +91,9 @@ class iftype():
         return ret
 
     @staticmethod
-    def _mkInst(T, _ep, _inst_name, *args, **kwargs):
-        if _ep is None:
+    def _mkInst(T, _backend, _inst_name, *args, **kwargs):
+        if _backend is None:
+            raise Exception("No backend specified")
             _ep = EndpointMgr.inst().default()
             
         ret = T.__new__(T)
@@ -101,37 +102,44 @@ class iftype():
         # get the actual endpoint-specific 'iftype' from the
         # endpoint
         iftype_p : IftypeDecl = IftypeRgy.inst().find_by_type(T)
-        _iftype = _ep.findInterfaceType(iftype_p.name)
+        _iftype = _backend.ep().findInterfaceType(iftype_p.name)
+        
+        if _iftype is None:
+            raise Exception("iftype %s is not registered with endpoint" % iftype_p.name)
 
-        ifinst = _ep.defineInterfaceInst(
+        ifinst = _backend.ep().defineInterfaceInst(
             _iftype, 
             _inst_name, 
             False, 
             ret.invoke_f)
 
-        ret._ifinst_data = IfInstData(_ep, iftype_p, ifinst, False)
+        ret._ifinst_data = IfInstData(_backend, iftype_p, ifinst, False)
 
         T.__init__(ret, *args, *kwargs)
 
         return ret
     
     @staticmethod
-    def _mkMirrorInst(T, _ep, _inst_name, *args, **kwargs):
-        if _ep is None:
-            _ep = EndpointMgr.inst().default()
+    def _mkMirrorInst(T, _backend, _inst_name, *args, **kwargs):
+        if _backend is None:
+            raise Exception("No backend specified")
+            _backend = EndpointMgr.inst().default()
             
         ret = T.__new__(T)
         
         iftype_p = IftypeRgy.inst().find_by_type(T)
-        _iftype = _ep.findInterfaceType(iftype_p.name)
+        _iftype = _backend.ep().findInterfaceType(iftype_p.name)
+        
+        if _iftype is None:
+            raise Exception("iftype %s is not registered with endpoint" % iftype_p.name)
 
-        ifinst = _ep.defineInterfaceInst(
+        ifinst = _backend.ep().defineInterfaceInst(
             _iftype, 
             _inst_name, 
             True, 
             ret.invoke_f)
 
-        ret._ifinst_data = IfInstData(_ep, iftype_p, ifinst, True)
+        ret._ifinst_data = IfInstData(_backend, iftype_p, ifinst, True)
 
         T.__init__(ret, *args, *kwargs)
         
@@ -157,8 +165,8 @@ class iftype():
             self.name = T.__name__
 
         setattr(T, "invoke_f", iftype._invoke_req_f)
-        T.mkInst = lambda _ep, _inst_name, *args, **kwargs: iftype._mkInst(T, _ep, _inst_name, *args, *kwargs)
-        T.mkMirrorInst = lambda _ep, _inst_name, *args, **kwargs: iftype._mkMirrorInst(T, _ep, _inst_name, *args, *kwargs)
+        T.mkInst = lambda _backend, _inst_name, *args, **kwargs: iftype._mkInst(T, _backend, _inst_name, *args, *kwargs)
+        T.mkMirrorInst = lambda _backend, _inst_name, *args, **kwargs: iftype._mkMirrorInst(T, _backend, _inst_name, *args, *kwargs)
         
         setattr(T, "inst_name", iftype._inst_name)
         T.is_mirror = iftype._is_mirror

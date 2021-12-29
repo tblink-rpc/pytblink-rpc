@@ -3,18 +3,30 @@ Created on Dec 27, 2021
 
 @author: mballance
 '''
-from tblink_rpc_core.endpoint_listener import EndpointListener
-import importlib
-from tblink_rpc.rt.runner import Runner
 import asyncio
+from enum import Enum
+import importlib
+import traceback
+
+from tblink_rpc.impl.iftype_rgy import IftypeRgy
+from tblink_rpc.rt.runner import Runner
+from tblink_rpc_core.endpoint import comm_mode_e, comm_state_e
+from tblink_rpc_core.endpoint_listener import EndpointListener
+from tblink_rpc_core.event_type_e import EventTypeE
+
+
+class State(Enum):
+    ProcessMessages = auto()
 
 class EndpointSequencer(object):
     
-    def __init__(self, ep, is_async):
+    def __init__(self, ep, backend, is_async):
         self.ep = ep
+        self.backend = backend
         self.ep.addListener(self.event)
         self.is_async = is_async
         self.runner = None
+        self.pending_time_reqs = 0
 
     def run(self):
         code = 0        
@@ -63,10 +75,13 @@ class EndpointSequencer(object):
         except Exception as e:
             print("Execption: %s" % str(e), flush=True)
             raise e
+
+        # Register all discovered types with the endpoint
+        IftypeRgy.inst().endpoint_added(self.ep)
             
         # Run the build phase
         try:
-            cls_i._do_build(self.ep)
+            cls_i._do_build(self.backend, self.ep)
         except Exception as e:
             print("Exception during build: %s" % str(e))
             raise e
@@ -88,6 +103,7 @@ class EndpointSequencer(object):
             cls_i._do_connect(self.ep)
         except Exception as e:
             print("Exception during connect: %s" % str(e), flush=True)
+            traceback.print_exc()
             raise e
                     
         if self.ep.connect_complete() == -1:
@@ -106,27 +122,37 @@ class EndpointSequencer(object):
         try:
             cls_i._do_start()
         except Exception as e:
-            print("Exception during connect: %s" % str(e), flush=True)
+            print("Exception during start: %s" % str(e), flush=True)
+            traceback.print_exc()
             raise e
 
-        ev = asyncio.Event()        
         loop = asyncio.get_event_loop()
         def _end_reschedule():
-            nonlocal ev
-            ev.set()
+            nonlocal loop
+            print("-- _end_reschedule")
+            loop.stop()
             
+        last_pending_time_reqs = 0
         while True:
             loop.call_soon(_end_reschedule)
-            if not ev.is_set():
-                loop.run_until_complete(ev.wait())
-            ev.clear()
+            loop.run_forever()
             
             if not cls_i._have_objections():
                 print("Done -- no objections")
                 break
             else:
-                print("Still running")
+                print("Still running: last_pending=%d pending=%d" % (
+                    last_pending_time_reqs, self.pending_time_reqs))
+                if last_pending_time_reqs == self.pending_time_reqs:
+                    self.ep.update_comm_mode(comm_mode_e.Automatic, comm_state_e.Released)
+                    while self.pending_time_reqs == last_pending_time_reqs:
+                        print("--> process_one_message")
+                        if self.ep.process_one_message() == -1:
+                            raise Exception("Unexpected disconnect")
+                            break
+                        print("<-- process_one_message")
                 # Tell the simulator to go run
+            last_pending_time_reqs = self.pending_time_reqs
         
         pass
     
@@ -134,6 +160,12 @@ class EndpointSequencer(object):
         pass
     
     def event(self, ev):
-        print("event")
+        kind = ev.kind()
+        print("event: %s" % str(kind))
+        
+        if kind == EventTypeE.OutInvokeReqB:
+            self.pending_time_reqs += 1
+        if kind == EventTypeE.InInvokeRspB:
+            self.pending_time_reqs -= 1
         pass
     

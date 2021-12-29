@@ -30,18 +30,20 @@ class exptask(object):
             
             if self._ifinst_data.is_mirror:
                 # This is actually an import, since it's a mirror
-                if ifinst_data.ep not in method_t.method_t_ep_m.keys():
+                if ifinst_data.backend.ep() not in method_t.method_t_ep_m.keys():
                     raise Exception("Endpoint not supported")
-                ep_method_t = method_t.method_t_ep_m[ifinst_data.ep]
-                params = ParamPacker(ifinst_data.ep, ep_method_t).pack(*args, *kwargs)
+                ep_method_t = method_t.method_t_ep_m[ifinst_data.backend.ep()]
+                params = ParamPacker(ifinst_data.backend.ep(), ep_method_t).pack(*args, *kwargs)
 
-                ev = TbLink.inst().mkEvent()
+                ev = ifinst_data.backend.event()
                 retval = None
                 
                 def completion_f(rv):
                     nonlocal retval, ev
+                    print("--> completion_f", flush=True)
                     retval = rv
                     ev.set()
+                    print("<-- completion_f", flush=True)
                 
                 ifinst_data.ifinst.invoke_nb(
                     # TODO: method_t is endpoint-specific
@@ -50,7 +52,9 @@ class exptask(object):
                     completion_f)
 
                 if not ev.is_set():
+                    print("--> wait for event", flush=True)
                     await ev.wait()
+                    print("<-- wait for event", flush=True)
                     
                 # TODO: Need to unpack return
                 ret = None

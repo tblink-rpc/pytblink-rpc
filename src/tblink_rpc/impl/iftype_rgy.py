@@ -31,8 +31,11 @@ class IftypeRgy(EndpointMgrListener):
         return cls._inst
     
     def endpoint_added(self, ep):
+        print("endpoint_added: %d iftypes" % len(self.iftypes))
         for iftype in self.iftypes:
             self._define_iftype(ep, iftype)
+        for iftype in ep.getInterfaceTypes():
+            print("iftype: %s" % iftype.name())
             
     def build_bfms(self, ep) -> List[object]:
         ret = []
@@ -81,6 +84,7 @@ class IftypeRgy(EndpointMgrListener):
             return None
         
     def _define_iftype(self, ep, iftype : IftypeDecl):
+        print("_define_iftype: Adding interface-type %s" % iftype.name)
         iftype_b = ep.newInterfaceTypeBuilder(iftype.name)
         ptb = ParamTypeBuilder(iftype_b)
         
