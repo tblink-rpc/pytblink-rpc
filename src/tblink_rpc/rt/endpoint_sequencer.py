@@ -4,7 +4,7 @@ Created on Dec 27, 2021
 @author: mballance
 '''
 import asyncio
-from enum import Enum
+from enum import Enum, auto
 import importlib
 import traceback
 
@@ -17,6 +17,7 @@ from tblink_rpc_core.event_type_e import EventTypeE
 
 class State(Enum):
     ProcessMessages = auto()
+    
 
 class EndpointSequencer(object):
     
@@ -26,10 +27,14 @@ class EndpointSequencer(object):
         self.ep.addListener(self.event)
         self.is_async = is_async
         self.runner = None
+        self.new_time_req = False
         self.pending_time_reqs = 0
+        self.outstanding_nb_reqs = 0
+        self.inbound_events = 0
+        self.terminated = False
 
     def run(self):
-        code = 0        
+        code = 0
         while True:
             print("--> is_init", flush=True)
             code = self.ep.is_init()
@@ -131,28 +136,44 @@ class EndpointSequencer(object):
             nonlocal loop
             print("-- _end_reschedule")
             loop.stop()
-            
-        last_pending_time_reqs = 0
-        while True:
-            loop.call_soon(_end_reschedule)
-            loop.run_forever()
+
+        while not self.terminated:
+            # Spin the loop while we have outstanding non-blocking calls
+            # or while we're still receiving outbound time-centric requests
+            print("--> Process Python activity", flush=True)
+            while True:
+                self.new_time_req = False
+                
+                loop.call_soon(_end_reschedule)
+                loop.run_forever()
+
+                print(" -- outstanding_nb_reqs=%d new_time_req=%d" % (
+                    self.outstanding_nb_reqs, self.new_time_req), flush=True)
+                if self.outstanding_nb_reqs == 0 and not self.new_time_req:
+                    print("  -- No new events", flush=True)
+                    break
+                elif self.outstanding_nb_reqs > 0:
+                    if self.ep.process_one_message() == -1:
+                        self.terminated = True
+                        raise Exception("Unexpected disconnect")
+            print("<-- Process Python activity", flush=True)
             
             if not cls_i._have_objections():
-                print("Done -- no objections")
+                print("Done -- no objections", flush=True)
                 break
             else:
-                print("Still running: last_pending=%d pending=%d" % (
-                    last_pending_time_reqs, self.pending_time_reqs))
-                if last_pending_time_reqs == self.pending_time_reqs:
-                    self.ep.update_comm_mode(comm_mode_e.Automatic, comm_state_e.Released)
-                    while self.pending_time_reqs == last_pending_time_reqs:
-                        print("--> process_one_message")
-                        if self.ep.process_one_message() == -1:
-                            raise Exception("Unexpected disconnect")
-                            break
-                        print("<-- process_one_message")
-                # Tell the simulator to go run
-            last_pending_time_reqs = self.pending_time_reqs
+                print("--> Release peer", flush=True)
+                self.ep.update_comm_mode(comm_mode_e.Automatic, comm_state_e.Released)
+                print("<-- Release peer", flush=True)
+                
+                print("--> Await events", flush=True)
+                self.inbound_events = 0
+                while self.inbound_events == 0:
+                    print("--> process_one_message", flush=True)
+                    if self.ep.process_one_message() == -1:
+                        raise Exception("Unexpected disconnect")
+                    print("<-- process_one_message", flush=True)
+                print("<-- Await events: %d" % self.inbound_events, flush=True)
         
         pass
     
@@ -161,11 +182,20 @@ class EndpointSequencer(object):
     
     def event(self, ev):
         kind = ev.kind()
-        print("event: %s" % str(kind))
+        print("event: %s" % str(kind), flush=True)
         
         if kind == EventTypeE.OutInvokeReqB:
             self.pending_time_reqs += 1
-        if kind == EventTypeE.InInvokeRspB:
+            self.new_time_req = True
+        elif kind == EventTypeE.InInvokeRspB:
             self.pending_time_reqs -= 1
+        elif kind == EventTypeE.OutInvokeReqNB:
+            self.outstanding_nb_reqs += 1
+        elif kind == EventTypeE.InInvokeRspNB:
+            self.outstanding_nb_reqs -= 1
+        elif kind == EventTypeE.InInvokeReqB:
+            self.inbound_events += 1
+        elif kind == EventTypeE.InInvokeReqNB:
+            self.inbound_events += 1
         pass
     
