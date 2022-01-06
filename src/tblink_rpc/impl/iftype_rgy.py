@@ -37,10 +37,10 @@ class IftypeRgy(EndpointMgrListener):
         for iftype in ep.getInterfaceTypes():
             print("iftype: %s" % iftype.name())
             
-    def build_bfms(self, ep) -> List[object]:
+    def build_bfms(self, backend) -> List[object]:
         ret = []
         print("build_bfms", flush=True)
-        for ifinst in ep.getPeerInterfaceInsts():
+        for ifinst in backend.ep().getPeerInterfaceInsts():
             print("ifinst: %s" % ifinst.name(), flush=True)
             tname = ifinst.type().name()
             
@@ -52,11 +52,12 @@ class IftypeRgy(EndpointMgrListener):
                 _iftype : IftypeDecl = self.iftype_name_m[tname]
                 print("iftype: %s %s" % (str(type(_iftype)), str(_iftype)))
             
-                bfm_inst = _iftype.T.mkMirrorInst(ep, ifinst.name())
+                bfm_inst = _iftype.T.mkMirrorInst(backend, ifinst.name())
                 ret.append(bfm_inst)
                 print("  ifinst: %s %s" % (ifinst.name(), ifinst.type().name()))
             except Exception as e:
                 print("Exception: %s" % str(e), flush=True)
+                raise e
         return ret
 
     def add_iftype(self, iftype):

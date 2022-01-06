@@ -17,7 +17,7 @@ class TbLink(object):
     
     def __init__(self):
         self.dflt_backend : Backend = None
-        self.tblink_core = None
+        self.tblink_core = tblink_rpc_core.tblink.TbLink.inst()
     
     @classmethod
     def inst(cls):
