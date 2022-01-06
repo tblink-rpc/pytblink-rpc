@@ -16,6 +16,6 @@ setup(
         'setuptools_scm'
     ],    
     install_requires=[
-        'tblink_rpc_core'
+        'tblink-rpc-core'
     ]
     )
