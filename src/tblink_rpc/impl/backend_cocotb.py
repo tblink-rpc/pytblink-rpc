@@ -43,7 +43,12 @@ class BackendCocotb(Backend):
         raise NotImplementedError("timeunit not implemented")
     
     def start_soon(self, coro) -> Task:
-        raise NotImplementedError("start_soon not implemented")
+        import cocotb
+        return cocotb.start_soon(coro)
+    
+    async def gather(self, *aws):
+        import cocotb
+        await cocotb.triggers.Combine(*aws)
     
     def timeprecision(self) -> int:
         """Returns precision -- 0, -3, -6, -9, -12..."""

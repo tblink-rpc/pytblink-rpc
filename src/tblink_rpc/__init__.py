@@ -22,6 +22,9 @@ def event():
 def start_soon(coro) -> Task:
     return TbLink.inst().dflt_backend.start_soon(coro)
 
+async def gather(*aws):
+    await TbLink.inst().dflt_backend.gather(*aws)
+
 def lock():
     return TbLink.inst().dflt_backend.lock()
 

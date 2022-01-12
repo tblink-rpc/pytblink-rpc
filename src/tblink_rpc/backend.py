@@ -41,6 +41,9 @@ class Backend(object):
     def start_soon(self, coro) -> Task:
         raise NotImplementedError("start_soon not implemented")
     
+    async def gather(self, *aws):
+        raise NotImplementedError("gather not implemented")
+    
     def timeprecision(self) -> int:
         """Returns precision -- 0, -3, -6, -9, -12..."""
         raise NotImplementedError("get_timeprecision not implemented")
