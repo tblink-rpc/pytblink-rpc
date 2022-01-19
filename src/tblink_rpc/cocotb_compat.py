@@ -11,6 +11,7 @@ from tblink_rpc.impl.backend_cocotb import BackendCocotb
 from tblink_rpc.impl.iftype_rgy import IftypeRgy
 from tblink_rpc_core.endpoint import comm_mode_e, comm_state_e
 from tblink_rpc.tblink import TbLink
+from tblink_rpc_core.tblink_listener import TbLinkListener
 
 
 _ifinsts = []
@@ -65,14 +66,44 @@ async def _init():
     #
     # Spin for a few deltas waiting for the
     # default endpoint to register
-    for i in range(16):
-        dflt = tblink.getDefaultEP()
-        if dflt is not None:
-            print("Python: Found default EP", flush=True)
-            break
-        else:
-            print("Python: Waiting for default EP", flush=True)
-            await cocotb.triggers.Timer(0, 'ns')
+    
+    dflt = tblink.getDefaultEP()
+    
+    if dflt is None:
+        print("Python: Waiting for default EP", flush=True)
+        
+        class L(TbLinkListener):
+            
+            def __init__(self):
+                self.ev = cocotb.triggers.Event()
+                
+            def event(self, ev):
+                print("event")
+                self.ev.set()
+                
+            async def wait(self):
+                await self.ev.wait()
+                self.ev.clear()
+                
+        listener = L()
+        tblink.tblink_core.addListener(listener)
+        
+        while dflt is None:
+            print("--> listener.wait", flush=True)
+            await listener.wait()
+            print("<-- listener.wait", flush=True)
+            dflt = tblink.getDefaultEP()
+    else:
+        print("Python: Found default EP", flush=True)
+    
+    # for i in range(16):
+    #     dflt = tblink.getDefaultEP()
+    #     if dflt is not None:
+    #         print("Python: Found default EP", flush=True)
+    #         break
+    #     else:
+    #         print("Python: Waiting for default EP", flush=True)
+    #         await cocotb.triggers.Timer(0, 'ns')
             
     if dflt is None:
         raise Exception("TbLink Error: no default endpoint is registered")
