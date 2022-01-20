@@ -31,6 +31,11 @@ class TbLink(object):
         else:
             return None
         
+    def getEndpoints(self):
+        ret = []
+        ret.extend(self.tblink_core.getEndpoints())
+        return ret
+        
     def findLaunchType(self, name) -> LaunchType:
         return self.tblink_core.findLaunchType(name)
     

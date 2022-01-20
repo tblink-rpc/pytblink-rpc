@@ -9,7 +9,7 @@ import cocotb
 
 from tblink_rpc.impl.backend_cocotb import BackendCocotb
 from tblink_rpc.impl.iftype_rgy import IftypeRgy
-from tblink_rpc_core.endpoint import comm_mode_e, comm_state_e
+from tblink_rpc_core.endpoint import comm_mode_e, comm_state_e, EndpointFlags
 from tblink_rpc.tblink import TbLink
 from tblink_rpc_core.tblink_listener import TbLinkListener
 
@@ -67,7 +67,12 @@ async def _init():
     # Spin for a few deltas waiting for the
     # default endpoint to register
     
-    dflt = tblink.getDefaultEP()
+    dflt = None
+    for ep in tblink.getEndpoints():
+        print("EP: %s" % str(ep))
+        if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
+            dflt = ep
+            break
     
     if dflt is None:
         print("Python: Waiting for default EP", flush=True)
@@ -92,19 +97,23 @@ async def _init():
             print("--> listener.wait", flush=True)
             await listener.wait()
             print("<-- listener.wait", flush=True)
-            dflt = tblink.getDefaultEP()
+
+            dflt = None
+            for ep in tblink.getEndpoints():
+                print("EP: %s flags=%s" % (str(ep), str(ep.getFlags())))
+                print("loopback_sec: %s" % str(EndpointFlags.LoopbackSec in ep.getFlags()))
+                print("claimed: %s" % str(EndpointFlags.Claimed in ep.getFlags()))
+                if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
+                    print("Found dflt", flush=True)
+                    dflt = ep
+                    break
+            print("post-for: dflt=%s" % str(dflt))
+        print("post-while: dflt=%s" % str(dflt))
     else:
         print("Python: Found default EP", flush=True)
+        
+    print("post-check: dflt=%s" % str(dflt))
     
-    # for i in range(16):
-    #     dflt = tblink.getDefaultEP()
-    #     if dflt is not None:
-    #         print("Python: Found default EP", flush=True)
-    #         break
-    #     else:
-    #         print("Python: Waiting for default EP", flush=True)
-    #         await cocotb.triggers.Timer(0, 'ns')
-            
     if dflt is None:
         raise Exception("TbLink Error: no default endpoint is registered")
     
