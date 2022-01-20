@@ -201,8 +201,6 @@ async def _init():
     print("<-- build_bfms", flush=True)
     _ifinsts.extend(bfms)
 
-    print("Python: dflt=%s" % str(dflt), flush=True)    
-    
     print("--> Python connect_complete")
     if ep.connect_complete() == -1:
         raise Exception("Connect-complete failed")
