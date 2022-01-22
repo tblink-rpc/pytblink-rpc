@@ -41,6 +41,12 @@ def main():
     
     target_ep.setFlag(EndpointFlags.Claimed)        
     print("target_ep: %s" % str(target_ep), flush=True)
+
+    # Set the endpoint for when the user calls    
+    # Note: it's required to import the module here so as
+    # to avoid messing up replacement of the simulator module
+    from tblink_rpc import cocotb_compat
+    cocotb_compat._set_ep(target_ep)
             
     pass
 

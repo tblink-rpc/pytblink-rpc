@@ -15,6 +15,8 @@ from tblink_rpc_core.tblink_listener import TbLinkListener
 
 
 _ifinsts = []
+_ep = None
+_is_init = False
 _debug = False
 
 def ifinsts():
@@ -46,6 +48,11 @@ def find_ifinsts(name, cls=None):
     return matches
 
 async def init():
+    global _is_init
+    
+    if _is_init:
+        return
+    
     try:
         await _init()
     except Exception as e:
@@ -56,7 +63,6 @@ async def init():
     
 async def _init():
     global _ifinsts
-    tblink = TbLink.inst()
    
     # Configure TbLink to use cocotb's event class 
 #    tblink.mk_ev = _mk_ev
@@ -67,63 +73,7 @@ async def _init():
     # Spin for a few deltas waiting for the
     # default endpoint to register
     
-    dflt = None
-    for ep in tblink.getEndpoints():
-        print("EP: %s" % str(ep))
-        if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
-            dflt = ep
-            break
-    
-    if dflt is None:
-        print("Python: Waiting for default EP", flush=True)
-        
-        class L(TbLinkListener):
-            
-            def __init__(self):
-                self.ev = cocotb.triggers.Event()
-                
-            def event(self, ev):
-                print("event")
-                self.ev.set()
-                
-            async def wait(self):
-                await self.ev.wait()
-                self.ev.clear()
-                
-        listener = L()
-        tblink.tblink_core.addListener(listener)
-        
-        while dflt is None:
-            print("--> listener.wait", flush=True)
-            await listener.wait()
-            print("<-- listener.wait", flush=True)
-
-            dflt = None
-            for ep in tblink.getEndpoints():
-                print("EP: %s flags=%s" % (str(ep), str(ep.getFlags())))
-                print("loopback_sec: %s" % str(EndpointFlags.LoopbackSec in ep.getFlags()))
-                print("claimed: %s" % str(EndpointFlags.Claimed in ep.getFlags()))
-                if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
-                    print("Found dflt", flush=True)
-                    dflt = ep
-                    break
-            print("post-for: dflt=%s" % str(dflt))
-        print("post-while: dflt=%s" % str(dflt))
-    else:
-        print("Python: Found default EP", flush=True)
-        
-    print("post-check: dflt=%s" % str(dflt))
-    
-    if dflt is None:
-        raise Exception("TbLink Error: no default endpoint is registered")
-    
-    # TODO: Use 'launcher' to connect to the existing endpoint
-    launcher = tblink.findLaunchType("connect.native.loopback")
-    params = launcher.newLaunchParams()
-    ep,err = launcher.launch(params)
-    
-    if ep is None:
-        raise Exception("Failed to connect: %s" % err)
+    ep = await _get_ep()
     
     ep.init(None)
     
@@ -240,3 +190,78 @@ async def _init():
     
     pass
 
+async def _get_ep():
+    global _ep
+    
+    tblink = TbLink.inst()
+    
+    if _ep is not None:
+        return _ep
+    
+    dflt = None
+    for ep in tblink.getEndpoints():
+        print("EP: %s" % str(ep))
+        if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
+            dflt = ep
+            break
+    
+    if dflt is None:
+        print("Python: Waiting for default EP", flush=True)
+        
+        class L(TbLinkListener):
+            
+            def __init__(self):
+                self.ev = cocotb.triggers.Event()
+                
+            def event(self, ev):
+                print("event")
+                self.ev.set()
+                
+            async def wait(self):
+                await self.ev.wait()
+                self.ev.clear()
+                
+        listener = L()
+        tblink.tblink_core.addListener(listener)
+        
+        while dflt is None:
+            print("--> listener.wait", flush=True)
+            await listener.wait()
+            print("<-- listener.wait", flush=True)
+
+            dflt = None
+            for ep in tblink.getEndpoints():
+                print("EP: %s flags=%s" % (str(ep), str(ep.getFlags())))
+                print("loopback_sec: %s" % str(EndpointFlags.LoopbackSec in ep.getFlags()))
+                print("claimed: %s" % str(EndpointFlags.Claimed in ep.getFlags()))
+                if (EndpointFlags.LoopbackSec in ep.getFlags()) and (EndpointFlags.Claimed not in ep.getFlags()):
+                    print("Found dflt", flush=True)
+                    dflt = ep
+                    break
+            print("post-for: dflt=%s" % str(dflt))
+        print("post-while: dflt=%s" % str(dflt))
+    else:
+        print("Python: Found default EP", flush=True)
+        
+    print("post-check: dflt=%s" % str(dflt))
+    
+    if dflt is None:
+        raise Exception("TbLink Error: no default endpoint is registered")
+    
+    # TODO: Use 'launcher' to connect to the existing endpoint
+    launcher = tblink.findLaunchType("connect.native.loopback")
+    params = launcher.newLaunchParams()
+    ep,err = launcher.launch(params)
+    
+    if ep is None:
+        raise Exception("Failed to connect: %s" % err)    
+    
+    _ep = ep
+    
+    return ep
+
+
+def _set_ep(ep):
+    global _ep
+    _ep = ep
+    
