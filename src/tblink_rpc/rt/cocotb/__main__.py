@@ -11,6 +11,7 @@ import sys
 import os
 import importlib
 import traceback
+from tblink_rpc.rt.cocotb.mgr import Mgr
 
 def main():
     tblink = TbLink.inst()
@@ -21,12 +22,6 @@ def main():
     # to importing cocotb.
     sys.modules['cocotb.simulator'] = importlib.import_module("tblink_rpc.rt.cocotb.simulator")
     
-    try:
-        import cocotb
-        cocotb._initialise_testbench([])
-    except Exception as e:
-        print("Exception: %s" % str(e), flush=True)
-        traceback.print_exc()
 
     target_ep = None
     for ep in tblink.getEndpoints():
@@ -47,6 +42,16 @@ def main():
     # to avoid messing up replacement of the simulator module
     from tblink_rpc import cocotb_compat
     cocotb_compat._set_ep(target_ep)
+    
+    mgr = Mgr.inst()
+    mgr.ep = target_ep
+    
+    try:
+        import cocotb
+        cocotb._initialise_testbench([])
+    except Exception as e:
+        print("Exception: %s" % str(e), flush=True)
+        traceback.print_exc()
             
     pass
 

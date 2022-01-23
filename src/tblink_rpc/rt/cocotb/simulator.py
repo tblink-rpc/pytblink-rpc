@@ -3,6 +3,7 @@ Created on Jan 21, 2022
 
 @author: mballance
 '''
+from tblink_rpc.rt.cocotb.mgr import Mgr
 
 #********************************************************************
 #* These constants are used by cocotb 'main'
@@ -49,10 +50,8 @@ def get_root_handle(root_name):
     return DummyHandle()
 
 def register_timed_callback(t, cb, ud):
-    print("register_timed_callback")
-    
-    return []
-    pass
+    print("register_timed_callback %s cb=%s" % (str(t), str(cb)))
+    return Mgr.inst().register_timed_callback(t, cb, ud)
 
 def register_value_change_callback(*args, **kwargs):
     raise Exception("TbLink RPC: Setting cocotb value-change callbacks is not supported")
@@ -77,12 +76,10 @@ def is_running(*args, **kwargs):
     raise Exception("TbLink RPC: Calling cocotb is_running is not supported")
 
 def get_sim_time():
-    print("TODO: get_sim_time")
-    return (0,0)
+    return Mgr.inst().get_sim_time()
 
 def get_precision():
-    print("TODO: get_precision")
-    return -9
+    return Mgr.inst().get_precision()
 
 def get_simulator_product():
     return "TbLink-RPC "
