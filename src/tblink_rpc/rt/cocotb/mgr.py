@@ -22,6 +22,9 @@ class Mgr(object):
     def __init__(self):
         self.ep : Endpoint = None
         
+    def stop_simulator(self):
+        self.ep.shutdown()
+        
     def get_sim_time(self):
         time = self.ep.time()
         return (time & 0xFFFFFFFF, (time >> 32))
