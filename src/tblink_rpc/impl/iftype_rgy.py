@@ -106,5 +106,5 @@ class IftypeRgy(EndpointMgrListener):
             m.method_t_ep_m[ep] = mt
             iftype.method_t2method_m[mt.name()] = m
         
-        ep.defineInterfaceType(iftype_b)
+        ep.defineInterfaceType(iftype_b, None)
         

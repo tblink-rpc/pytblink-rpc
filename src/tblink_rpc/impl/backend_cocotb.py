@@ -44,7 +44,10 @@ class BackendCocotb(Backend):
     
     def start_soon(self, coro) -> Task:
         import cocotb
-        return cocotb.start_soon(coro)
+        if cocotb.scheduler._is_reacting: 
+            return cocotb.start_soon(coro)
+        else:
+            return cocotb.fork(coro)
     
     async def gather(self, *aws):
         import cocotb

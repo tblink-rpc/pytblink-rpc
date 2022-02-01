@@ -22,7 +22,6 @@ def main():
     # to importing cocotb.
     sys.modules['cocotb.simulator'] = importlib.import_module("tblink_rpc.rt.cocotb.simulator")
     
-
     target_ep = None
     for ep in tblink.getEndpoints():
         flags = ep.getFlags()

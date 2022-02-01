@@ -45,7 +45,7 @@ class exptask(object):
                     ev.set()
                     print("<-- completion_f", flush=True)
                 
-                ifinst_data.ifinst.invoke_nb(
+                ifinst_data.ifinst.invoke(
                     # TODO: method_t is endpoint-specific
                     ep_method_t,
                     params,

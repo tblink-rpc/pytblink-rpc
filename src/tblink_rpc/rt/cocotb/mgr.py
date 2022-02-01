@@ -27,7 +27,7 @@ class Mgr(object):
         
     def get_sim_time(self):
         time = self.ep.time()
-        return (time & 0xFFFFFFFF, (time >> 32))
+        return ((time >> 32), time & 0xFFFFFFFF)
     
     def get_precision(self):
         p = int(self.ep.time_precision())
