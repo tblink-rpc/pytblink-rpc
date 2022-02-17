@@ -74,8 +74,10 @@ async def _init():
     # default endpoint to register
     
     ep = await _get_ep()
-    
-    ep.init(None)
+
+    # The endpoint may have already been initialized
+    if not ep.is_init():    
+        ep.init(None)
     
     ev = cocotb.triggers.Event()
     
@@ -112,9 +114,13 @@ async def _init():
         print("iftype: %s" % iftype.name())
 
     # TODO: Complete build stage. This ensures we know about all peer-registered instances
+    print("--> Python build_complete", flush=True)
     if ep.build_complete() == -1:
         raise Exception("Build-complete failed")
-    
+    print("<-- Python build_complete", flush=True)
+
+    print("--> Python is_build_complete", flush=True)
+    ev.clear()
     for _ in range(10):
         print("--> is_build_complete", flush=True)
         code = ep.is_build_complete()
@@ -133,6 +139,7 @@ async def _init():
             raise Exception("Is-build-complete failed")
         else:
             break
+    print("<-- Python is_build_complete", flush=True)
         
     if ep.is_build_complete() != 1:
         raise Exception("TbLink-RPC cocotb: Time-out during is-build-complete")
@@ -156,8 +163,8 @@ async def _init():
         raise Exception("Connect-complete failed")
     print("<-- Python connect_complete")
     
+    print("--> Python is_connect_complete", flush=True)
     while True:
-        print("--> is_connect_complete", flush=True)
         code = ep.is_connect_complete()
         print("<-- is_connect_complete %d" % code, flush=True)
         if code == 0:
@@ -172,6 +179,7 @@ async def _init():
             raise Exception("Is-connect-complete failed")
         else:
             break
+    print("<-- Python is_connect_complete", flush=True)
         
     ep.removeListener(l)
 

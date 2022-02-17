@@ -45,12 +45,28 @@ def main():
     mgr = Mgr.inst()
     mgr.ep = target_ep
     
-    try:
-        import cocotb
-        cocotb._initialise_testbench([])
-    except Exception as e:
-        print("Exception: %s" % str(e), flush=True)
-        traceback.print_exc()
+    target_ep.init(None)
+    listener_h = None
+    
+    def initialize_cocotb(e):
+        nonlocal target_ep
+        nonlocal listener_h
+        
+        print("initialize_cocotb: is_init=%s" % str(target_ep.is_init()), flush=True)
+        
+        if target_ep.is_init():
+            try:
+                import cocotb
+                print("Note: removing listener")
+                target_ep.removeListener(listener_h)
+                cocotb._initialise_testbench([])
+            except Exception as e:
+                print("Exception: %s" % str(e), flush=True)
+                traceback.print_exc()
+                raise e
+            
+    listener_h = target_ep.addListener(initialize_cocotb)
+    initialize_cocotb(None)
             
     pass
 
@@ -59,3 +75,4 @@ if __name__ == "__main__" or __name__.endswith(".__main__"):
         main()
     except Exception as e:
         print("Exception in main: %s" % str(e), flush=True)
+        raise e
