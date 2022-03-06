@@ -51,4 +51,9 @@ class Mgr(object):
         if cls._inst is None:
             cls._inst = Mgr()
         return cls._inst
+    
+    @classmethod
+    def init(cls):
+        cls._inst = Mgr()
+        return cls._inst
             

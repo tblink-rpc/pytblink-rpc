@@ -4,11 +4,9 @@ Created on Jan 21, 2022
 @author: mballance
 '''
 
-import tblink_rpc
 from tblink_rpc.tblink import TbLink
 from tblink_rpc_core.endpoint import EndpointFlags
 import sys
-import os
 import importlib
 import traceback
 from tblink_rpc.rt.cocotb.mgr import Mgr
@@ -57,7 +55,6 @@ def main():
         if target_ep.is_init():
             try:
                 import cocotb
-                print("Note: removing listener")
                 target_ep.removeListener(listener_h)
                 cocotb._initialise_testbench([])
             except Exception as e:
