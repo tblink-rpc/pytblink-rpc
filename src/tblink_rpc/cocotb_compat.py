@@ -18,6 +18,19 @@ _ifinsts = []
 _ep = None
 _is_init = False
 _debug = False
+_time_controller = False
+
+def reinit():
+    global _ifinsts
+    global _ep
+    global _is_init
+    
+    # Called to prepare for a secondary initialization
+    
+    _ifinsts.clear()
+    _ep = None
+    _is_init = False
+    
 
 def ifinsts():
     global _ifinsts
@@ -63,6 +76,7 @@ async def init():
     
 async def _init():
     global _ifinsts
+    global _time_controller
    
     # Configure TbLink to use cocotb's event class 
 #    tblink.mk_ev = _mk_ev
@@ -187,14 +201,16 @@ async def _init():
     
     # Release the endpoint, allowing cocotb to control
     # and gate simulation
-    
-    print("--> update_comm_mode", flush=True)
-    try:
-        ep.update_comm_mode(comm_mode_e.Explicit, comm_state_e.Released)
-    except Exception as e:
-        print("Exception: %s" % str(e))
-        traceback.print_exc()
-    print("<-- update_comm_mode", flush=True)
+
+
+    if not _time_controller:        
+        print("--> update_comm_mode", flush=True)
+        try:
+            ep.update_comm_mode(comm_mode_e.Explicit, comm_state_e.Released)
+        except Exception as e:
+            print("Exception: %s" % str(e))
+            traceback.print_exc()
+        print("<-- update_comm_mode", flush=True)
     
     pass
 
@@ -202,7 +218,8 @@ async def _get_ep():
     global _ep
     
     tblink = TbLink.inst()
-    
+
+    print("_get_ep: _ep=%s" % str(_ep))    
     if _ep is not None:
         return _ep
     

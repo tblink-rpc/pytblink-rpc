@@ -66,6 +66,7 @@ def register_rwsynch_callback(*args, **kwargs):
     raise Exception("TbLink RPC: Setting cocotb rwsynch callbacks is not supported")
 
 def stop_simulator():
+    print("stop_simulator")
     Mgr.inst().stop_simulator()
 
 def log_level(level):

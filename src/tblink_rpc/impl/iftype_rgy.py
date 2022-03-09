@@ -32,16 +32,22 @@ class IftypeRgy(EndpointMgrListener):
     
     def endpoint_added(self, ep):
         print("endpoint_added: %d iftypes" % len(self.iftypes))
+        
         for iftype in self.iftypes:
             self._define_iftype(ep, iftype)
         for iftype in ep.getInterfaceTypes():
             print("iftype: %s" % iftype.name())
             
+    def define_iftypes(self, ep):
+        print("define_ifrypes: %d iftypes" % len(self.iftypes))
+        for iftype in self.iftypes:
+            self._define_iftype(ep, iftype)
+            
     def build_bfms(self, backend) -> List[object]:
         ret = []
         print("build_bfms", flush=True)
         for ifinst in backend.ep().getPeerInterfaceInsts():
-            print("ifinst: %s" % ifinst.name(), flush=True)
+            print("ifinst: %s (%s)" % (ifinst.name(), str(ifinst.type())), flush=True)
             tname = ifinst.type().name()
             
             if tname not in self.iftype_name_m.keys():
@@ -86,6 +92,10 @@ class IftypeRgy(EndpointMgrListener):
         
     def _define_iftype(self, ep, iftype : IftypeDecl):
         print("_define_iftype: Adding interface-type %s" % iftype.name)
+        
+        if ep.findInterfaceType(iftype.name) is not None:
+            return
+        
         iftype_b = ep.newInterfaceTypeBuilder(iftype.name)
         ptb = ParamTypeBuilder(iftype_b)
         
