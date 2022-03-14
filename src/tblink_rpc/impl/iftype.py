@@ -121,6 +121,7 @@ class iftype():
     
     @staticmethod
     def _mkMirrorInst(T, _backend, _inst_name, *args, **kwargs):
+        print("_mkMirrorInst: %s" % _inst_name)
         if _backend is None:
             raise Exception("No backend specified")
             _backend = EndpointMgr.inst().default()
@@ -138,6 +139,8 @@ class iftype():
             _inst_name, 
             True, 
             ret.invoke_f)
+        
+        print("ifinst=%s (%s)" % (str(ifinst), str(type(ifinst))))
 
         ret._ifinst_data = IfInstData(_backend, iftype_p, ifinst, True)
 

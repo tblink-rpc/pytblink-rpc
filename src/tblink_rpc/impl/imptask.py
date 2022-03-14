@@ -16,5 +16,5 @@ class imptask(object):
         async def _imptask_impl(self, *args, **kwargs):
             # TODO: how do we find the proper endpoint?
             pass
-        Ctor.inst().add_method(T, True, True)
+        Ctor.inst().add_method(T, False, True)
         return _imptask_impl
