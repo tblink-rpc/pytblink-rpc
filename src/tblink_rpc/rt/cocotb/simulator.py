@@ -4,6 +4,7 @@ Created on Jan 21, 2022
 @author: mballance
 '''
 from tblink_rpc.rt.cocotb.mgr import Mgr
+import traceback
 
 #********************************************************************
 #* These constants are used by cocotb 'main'
@@ -51,7 +52,11 @@ def get_root_handle(root_name):
 
 def register_timed_callback(t, cb, ud):
     print("register_timed_callback %s cb=%s" % (str(t), str(cb)))
-    return Mgr.inst().register_timed_callback(t, cb, ud)
+    try:
+        return Mgr.inst().register_timed_callback(t, cb, ud)
+    except Exception as e:
+        print("Exception: %s" % str(e))
+        traceback.print_exc()
 
 def register_value_change_callback(*args, **kwargs):
     raise Exception("TbLink RPC: Setting cocotb value-change callbacks is not supported")
