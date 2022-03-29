@@ -62,17 +62,20 @@ def find_ifinsts(name, cls=None):
 
 async def init():
     global _is_init
+    ep = None
     
     if _is_init:
         return
     
     try:
-        await _init()
+        ep = await _init()
     except Exception as e:
         print("TbLink cocotb: %s" % str(e), flush=True)
         traceback.print_exc()
         sys.stdout.flush()
         raise e
+    
+    return ep
     
 async def _init():
     global _ifinsts
@@ -211,8 +214,8 @@ async def _init():
             print("Exception: %s" % str(e))
             traceback.print_exc()
         print("<-- update_comm_mode", flush=True)
-    
-    pass
+
+    return ep    
 
 async def _get_ep():
     global _ep

@@ -20,6 +20,11 @@ class IftypeRgy(EndpointMgrListener):
         pass
     
     @classmethod
+    def reset(cls):
+        cls._inst = None
+        return cls.inst()
+    
+    @classmethod
     def inst(cls):
         if cls._inst is None:
             cls._inst = IftypeRgy()

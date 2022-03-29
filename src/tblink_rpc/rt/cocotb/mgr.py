@@ -35,7 +35,7 @@ class Mgr(object):
     
     def register_timed_callback(self, t, cb, ud):
         def callback():
-            print("callback", flush=True)
+            print("Callback Triggered", flush=True)
             try:
                 cb(ud)
             except Exception as e:
