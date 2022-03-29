@@ -19,6 +19,7 @@ def main():
     # module. We do this by inserting our own module prior
     # to importing cocotb.
     sys.modules['cocotb.simulator'] = importlib.import_module("tblink_rpc.rt.cocotb.simulator")
+
     
     target_ep = None
     for ep in tblink.getEndpoints():
