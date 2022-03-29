@@ -8,7 +8,7 @@ setup(
     package_dir={'' : 'src'},
     author = "Matthew Ballance",
     author_email = "matt.ballance@gmail.com",
-    description = ("PyTBLink provides a procedure-based interface between Python and simulation environments such as SystemC and SystemVerilog"),
+    description = ("PyTbLink-RPC provides a Python user facade to integrate with simulation environments such as SystemC and SystemVerilog"),
     license = "Apache 2.0",
     keywords = ["SystemVerilog", "Verilog", "RTL", "cocotb", "Python"],
     url = "https://github.com/fvutils/pytblink",
