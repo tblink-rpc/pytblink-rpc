@@ -170,7 +170,8 @@ async def _init():
     print("--> build_bfms", flush=True)
     backend = BackendCocotb(ep)
     tblink = TbLink.inst()
-    tblink.dflt_backend = backend
+    tblink.addEndpoint(ep, backend)
+    
     bfms = IftypeRgy.inst().build_bfms(backend)
     print("<-- build_bfms", flush=True)
     _ifinsts.extend(bfms)

@@ -60,11 +60,12 @@ def main():
     
     if ep is None:
         raise Exception("Failed to launch endpoint: %s" % err)
-    
-    tblink.dflt_backend = BackendAsyncio(ep)
+
+    backend = BackendAsyncio(ep)
+    tblink.addEndpoint(ep, backend)
     
     ep.init(None)
-    _seqr = EndpointSequencer(ep, tblink.dflt_backend, is_async)
+    _seqr = EndpointSequencer(ep, backend, is_async)
 
     try:    
         _seqr.run()

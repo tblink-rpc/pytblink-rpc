@@ -13,6 +13,7 @@ from tblink_rpc.impl.param_unpacker import ParamUnpacker
 from tblink_rpc.impl import ifinst_data
 from tblink_rpc_core.method_type import MethodType
 from tblink_rpc.impl.packer import Packer
+from tblink_rpc.tblink import TbLink
 
 class iftype():
     """Implementation for the 'tblink.iftype' decorator"""
@@ -91,10 +92,11 @@ class iftype():
         return ret
 
     @staticmethod
-    def _mkInst(T, _backend, _inst_name, *args, **kwargs):
-        if _backend is None:
-            raise Exception("No backend specified")
-            _ep = EndpointMgr.inst().default()
+    def _mkInst(T, _ep, _inst_name, *args, **kwargs):
+        
+#        if _backend is None:
+#            raise Exception("No backend specified")
+#            _ep = EndpointMgr.inst().default()
             
         ret = T.__new__(T)
         
@@ -102,39 +104,43 @@ class iftype():
         # get the actual endpoint-specific 'iftype' from the
         # endpoint
         iftype_p : IftypeDecl = IftypeRgy.inst().find_by_type(T)
-        _iftype = _backend.ep().findInterfaceType(iftype_p.name)
+        _iftype = _ep.findInterfaceType(iftype_p.name)
         
         if _iftype is None:
             raise Exception("iftype %s is not registered with endpoint" % iftype_p.name)
 
-        ifinst = _backend.ep().defineInterfaceInst(
+        ifinst = _ep.defineInterfaceInst(
             _iftype, 
             _inst_name, 
             False, 
             ret.invoke_f)
 
-        ret._ifinst_data = IfInstData(_backend, iftype_p, ifinst, False)
+        ret._ifinst_data = IfInstData(
+            TbLink.inst().getBackend(_ep), 
+            iftype_p, 
+            ifinst, 
+            False)
 
         T.__init__(ret, *args, *kwargs)
 
         return ret
     
     @staticmethod
-    def _mkMirrorInst(T, _backend, _inst_name, *args, **kwargs):
+    def _mkMirrorInst(T, _ep, _inst_name, *args, **kwargs):
         print("_mkMirrorInst: %s" % _inst_name)
-        if _backend is None:
-            raise Exception("No backend specified")
-            _backend = EndpointMgr.inst().default()
+#        if _backend is None:
+#            raise Exception("No backend specified")
+#            _backend = EndpointMgr.inst().default()
             
         ret = T.__new__(T)
         
         iftype_p = IftypeRgy.inst().find_by_type(T)
-        _iftype = _backend.ep().findInterfaceType(iftype_p.name)
+        _iftype = _ep.findInterfaceType(iftype_p.name)
         
         if _iftype is None:
             raise Exception("iftype %s is not registered with endpoint" % iftype_p.name)
 
-        ifinst = _backend.ep().defineInterfaceInst(
+        ifinst = _ep.defineInterfaceInst(
             _iftype, 
             _inst_name, 
             True, 
@@ -142,7 +148,11 @@ class iftype():
         
         print("ifinst=%s (%s)" % (str(ifinst), str(type(ifinst))))
 
-        ret._ifinst_data = IfInstData(_backend, iftype_p, ifinst, True)
+        ret._ifinst_data = IfInstData(
+            TbLink.inst().getBackend(_ep),
+            iftype_p, 
+            ifinst, 
+            True)
 
         T.__init__(ret, *args, *kwargs)
         

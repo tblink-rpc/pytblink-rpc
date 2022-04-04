@@ -122,6 +122,9 @@ class IftypeRgy(EndpointMgrListener):
             iftype.method_t2method_m[mt.name()] = m
 
         # TODO: add in create proxy        
-        ep.defineInterfaceType(iftype_b, None, None)
+        ep.defineInterfaceType(
+            iftype_b, 
+            lambda : iftype.T.mkInst(ep, "").invoke_f, 
+            lambda : iftype.T.mkMirrorInst(ep, "").invoke_f)
 
         
